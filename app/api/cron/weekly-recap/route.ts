@@ -161,9 +161,9 @@ async function handle(request: NextRequest) {
   const resend = new Resend(apiKey);
   const from =
     process.env.RESEND_FROM_EMAIL ||
-    "Morey's Daily Report <onboarding@resend.dev>";
+    "beAcon Operational Intelligence <onboarding@resend.dev>";
 
-  const subject = `Morey's Weekly Recap — ${weekStart} to ${weekEnd}`;
+  const subject = `beAcon · Weekly Recap — Morey's Piers · ${weekStart} → ${weekEnd}`;
   const htmlBody = renderWeeklyHTML({
     weekStart,
     weekEnd,

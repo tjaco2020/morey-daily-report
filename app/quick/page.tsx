@@ -162,7 +162,7 @@ export default function QuickPage() {
           <button
             type="submit"
             disabled={busy}
-            className="w-full py-3 rounded-soft bg-morey-yellow text-morey-deep font-semibold hover:bg-morey-yellowDark disabled:opacity-60 transition shadow-sm"
+            className="w-full py-3 rounded-soft bg-beacon-navy text-white font-semibold hover:bg-beacon-charcoal disabled:opacity-60 transition shadow-sm"
           >
             {busy ? "Submitting…" : "Submit report"}
           </button>

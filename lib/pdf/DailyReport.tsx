@@ -26,14 +26,21 @@ export type DailyReportData = {
   reports: IncludedReport[];
 };
 
+// beAcon brand palette for the PDF
 const COLOR = {
-  red: "#E4002B",
-  ocean: "#0099CC",
-  sun: "#FFD23F",
-  deep: "#1B3A57",
-  sand: "#FBF6EC",
-  grayLine: "#E5E7EB",
-  grayText: "#6B7280",
+  navy:      "#0F172A",
+  charcoal:  "#1E293B",
+  teal:      "#00B3A7",
+  gold:      "#FFC72C",
+  offwhite:  "#F8FAFC",
+  grayLine:  "#E2E8F0",
+  grayText:  "#475569",
+  // legacy aliases kept so style refs below don't break
+  red:       "#0F172A",  // remapped to navy
+  ocean:     "#00B3A7",  // remapped to teal
+  sun:       "#FFC72C",
+  deep:      "#0F172A",
+  sand:      "#F8FAFC",
 };
 
 const styles = StyleSheet.create({
@@ -48,16 +55,16 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    borderBottomWidth: 3,
-    borderBottomColor: COLOR.red,
+    borderBottomWidth: 2,
+    borderBottomColor: COLOR.navy,
     paddingBottom: 10,
     marginBottom: 14,
   },
   brand: {
     fontSize: 22,
     fontFamily: "Helvetica-Bold",
-    color: COLOR.red,
-    letterSpacing: 1,
+    color: COLOR.navy,
+    letterSpacing: 0,
   },
   brandSub: {
     fontSize: 9,
@@ -344,8 +351,12 @@ export function DailyReportPDF({ data }: { data: DailyReportData }) {
         {/* Header */}
         <View style={styles.header} fixed>
           <View>
-            <Text style={styles.brand}>MOREY&apos;S PIERS</Text>
-            <Text style={styles.brandSub}>Daily Operations Report</Text>
+            <Text style={styles.brand}>
+              be<Text style={{ color: COLOR.teal }}>A</Text>con
+            </Text>
+            <Text style={styles.brandSub}>
+              Daily Operations Report · Morey&apos;s Piers
+            </Text>
           </View>
           <View style={styles.dateBlock}>
             <Text style={styles.dateMain}>{formatPdfDate(data.date)}</Text>
@@ -431,7 +442,7 @@ export function DailyReportPDF({ data }: { data: DailyReportData }) {
 
         {/* Footer */}
         <View style={styles.footer} fixed>
-          <Text>Morey&apos;s Piers • Internal Daily Report</Text>
+          <Text>beAcon · Operational Intelligence for Morey&apos;s Piers</Text>
           <Text
             render={({ pageNumber, totalPages }) =>
               `Page ${pageNumber} of ${totalPages}`

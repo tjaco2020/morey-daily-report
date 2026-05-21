@@ -112,11 +112,11 @@ export async function POST(request: NextRequest) {
   const sharerName = profile.full_name?.trim() || profile.email;
   const subject =
     reports.length === 1
-      ? `Morey's report shared by ${sharerName} — ${
+      ? `beAcon · Report shared by ${sharerName} — ${
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           (reports[0] as any).categories?.name ?? "report"
         }`
-      : `${reports.length} Morey's reports shared by ${sharerName}`;
+      : `beAcon · ${reports.length} reports shared by ${sharerName}`;
 
   const htmlBody = renderShareHTML({
     sharer: sharerName,
@@ -135,7 +135,7 @@ export async function POST(request: NextRequest) {
   const resend = new Resend(apiKey);
   const from =
     process.env.RESEND_FROM_EMAIL ||
-    "Morey's Daily Report <onboarding@resend.dev>";
+    "beAcon Operational Intelligence <onboarding@resend.dev>";
 
   const sendResult = await resend.emails.send({
     from,

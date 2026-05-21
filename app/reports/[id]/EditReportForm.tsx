@@ -133,7 +133,7 @@ export function EditReportForm({
           <button
             onClick={() => update(true)}
             disabled={busy}
-            className="flex-1 py-2 rounded-soft bg-morey-yellow text-morey-deep hover:bg-morey-yellowDark disabled:opacity-60 font-semibold transition shadow-sm"
+            className="flex-1 py-2 rounded-soft bg-beacon-navy text-white hover:bg-beacon-charcoal disabled:opacity-60 font-semibold transition shadow-sm"
           >
             Submit
           </button>

@@ -229,7 +229,7 @@ export function ShareDialog({ reportIds, caseNumber, onClose }: Props) {
             <button
               onClick={send}
               disabled={busy}
-              className="flex-1 py-2 rounded-soft bg-morey-yellow text-morey-deep hover:bg-morey-yellowDark disabled:opacity-60 text-sm font-semibold transition shadow-sm inline-flex items-center justify-center gap-1.5"
+              className="flex-1 py-2 rounded-soft bg-beacon-navy text-white hover:bg-beacon-charcoal disabled:opacity-60 text-sm font-semibold transition shadow-sm inline-flex items-center justify-center gap-1.5"
             >
               <Send className="w-3.5 h-3.5" />
               {busy ? "Sending…" : "Send"}

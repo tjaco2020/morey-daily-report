@@ -1,22 +1,21 @@
 /**
- * beAcon brand mark and wordmark components.
+ * beAcon brand mark and wordmark.
  *
- * The "A" glyph is the icon — a geometric lighthouse silhouette with a
- * teal signal beam and a gold accent. It works at any size from 16px
- * favicon to a full wordmark.
+ * The "A" glyph is a geometric lighthouse silhouette:
+ *   - chunky two-leg "A" body with an inner doorway cutout at the base
+ *   - separated teal signal triangle on top (the beam)
+ *   - small gold accent inside the beam (the flame)
  *
- * Three variants:
- *   <BeaconIcon />     — just the A (square aspect)
- *   <BeaconWordmark /> — "beAcon" with the A as a logo glyph
- *   <BeaconStacked />  — icon above wordmark (for splash / login)
+ * Designed to read confidently at any size from 16px favicon up to a
+ * full wordmark. Uses currentColor for the body so it inherits text
+ * color and works in both light and dark contexts.
  */
 
 type SizeProps = {
   className?: string;
-  /** Stroke colors — defaults match the brand. */
-  bodyColor?: string;  // the "A" silhouette
-  beamColor?: string;  // the upper signal triangle
-  accentColor?: string; // the small inner accent
+  bodyColor?: string;   // the chunky "A" silhouette (defaults to currentColor)
+  beamColor?: string;   // the upper signal triangle
+  accentColor?: string; // the inner flame
 };
 
 export function BeaconIcon({
@@ -27,34 +26,34 @@ export function BeaconIcon({
 }: SizeProps) {
   return (
     <svg
-      viewBox="0 0 40 48"
+      viewBox="0 0 48 56"
       xmlns="http://www.w3.org/2000/svg"
       className={className}
       aria-label="beAcon"
       role="img"
     >
-      {/* Lighthouse body — geometric A silhouette.
-          A tent/teepee shape with a center vertical for stability. */}
+      {/*
+        Chunky lighthouse A — single path using evenodd fill rule.
+        Subpath 1: outer triangle (the full A silhouette).
+        Subpath 2: inner V cutout (the empty interior).
+        Subpath 3: small doorway cutout at the base.
+        Result: solid legs + interior void + doorway opening.
+      */}
       <path
-        d="M20 12 L4 44 L11 44 L20 26 L29 44 L36 44 Z"
+        fillRule="evenodd"
         fill={bodyColor}
+        d="
+          M24 14 L46 54 L2 54 Z
+          M24 26 L36 47 L12 47 Z
+          M21 54 L27 54 L24 47 Z
+        "
       />
-      {/* Inner doorway accent — small white triangle suggesting a doorway */}
-      <path
-        d="M20 30 L17 44 L23 44 Z"
-        fill="#FFFFFF"
-        opacity="0.9"
-      />
-      {/* Teal signal beam at the top — the lighthouse light */}
-      <path
-        d="M20 0 L13 13 L27 13 Z"
-        fill={beamColor}
-      />
-      {/* Gold accent — the flame / source */}
-      <path
-        d="M20 4 L17 11 L23 11 Z"
-        fill={accentColor}
-      />
+
+      {/* Teal signal triangle (the beam) — separated from the body */}
+      <path d="M24 0 L17 12 L31 12 Z" fill={beamColor} />
+
+      {/* Gold flame accent inside the beam */}
+      <path d="M24 3 L20.5 10.5 L27.5 10.5 Z" fill={accentColor} />
     </svg>
   );
 }
@@ -76,24 +75,24 @@ export function BeaconWordmark({
 }) {
   return (
     <span
-      className={`inline-flex items-center ${className}`}
+      className={`inline-flex items-baseline ${className}`}
       aria-label="beAcon"
     >
       <span
         className="font-semibold tracking-tight"
-        style={{ color: textColor, fontSize: "1.25em", lineHeight: 1 }}
+        style={{ color: textColor, fontSize: "1.2em", lineHeight: 1 }}
       >
         be
       </span>
       <BeaconIcon
-        className="h-[1.1em] w-auto -mx-0.5 translate-y-[-2px]"
+        className="h-[1.4em] w-auto mx-[1px] translate-y-[-1px]"
         bodyColor={textColor}
         beamColor={beamColor}
         accentColor={accentColor}
       />
       <span
         className="font-semibold tracking-tight"
-        style={{ color: textColor, fontSize: "1.25em", lineHeight: 1 }}
+        style={{ color: textColor, fontSize: "1.2em", lineHeight: 1 }}
       >
         con
       </span>
@@ -110,9 +109,9 @@ export function BeaconStacked({
   className?: string;
 }) {
   return (
-    <div className={`flex flex-col items-center gap-2 ${className}`}>
-      <BeaconIcon className="w-16 h-16 text-beacon-navy" />
-      <BeaconWordmark className="text-[20px]" />
+    <div className={`flex flex-col items-center gap-3 ${className}`}>
+      <BeaconIcon className="w-20 h-20 text-beacon-navy" />
+      <BeaconWordmark className="text-[22px]" />
     </div>
   );
 }

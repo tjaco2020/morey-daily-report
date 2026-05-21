@@ -82,7 +82,7 @@ export function AutomationClient({
           className={`px-4 py-2 rounded-lg text-sm font-semibold disabled:opacity-60 ${
             enabled
               ? "bg-gray-200 text-morey-deep hover:bg-gray-300"
-              : "bg-morey-yellow text-morey-deep hover:bg-morey-yellowDark"
+              : "bg-beacon-navy text-white hover:bg-beacon-charcoal"
           }`}
         >
           {busy ? "…" : enabled ? "Turn off" : "Turn on"}

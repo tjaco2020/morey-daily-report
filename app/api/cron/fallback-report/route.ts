@@ -171,14 +171,14 @@ async function handle(request: NextRequest) {
   const resend = new Resend(apiKey);
   const from =
     process.env.RESEND_FROM_EMAIL ||
-    "Morey's Daily Report <onboarding@resend.dev>";
+    "beAcon Operational Intelligence <onboarding@resend.dev>";
 
   const sendResult = await resend.emails.send({
     from,
     to: recipients.map((r) => r.email),
-    subject: `Morey's Daily Report — ${date} (Auto)`,
+    subject: `beAcon · Daily Report — Morey's Piers · ${date} (Auto)`,
     text: [
-      `Morey's Piers — Daily Operations Report (auto-generated fallback)`,
+      `beAcon · Daily Operations Report for Morey's Piers (auto-generated fallback)`,
       `Date: ${date}`,
       ``,
       `No manual Daily Report was sent for this date by 1:30 AM.`,

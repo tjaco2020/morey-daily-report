@@ -139,7 +139,7 @@ export function UsersClient({ initial }: { initial: Row[] }) {
           <button
             type="submit"
             disabled={busy}
-            className="py-2 rounded-soft bg-morey-yellow text-morey-deep text-sm font-semibold hover:bg-morey-yellowDark disabled:opacity-60 transition shadow-sm"
+            className="py-2 rounded-soft bg-beacon-navy text-white text-sm font-semibold hover:bg-beacon-charcoal disabled:opacity-60 transition shadow-sm"
           >
             {busy ? "Sending…" : "Send invite"}
           </button>

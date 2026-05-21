@@ -117,7 +117,7 @@ export async function POST(
   const resend = new Resend(apiKey);
   const from =
     process.env.RESEND_FROM_EMAIL ||
-    "Morey's Daily Report <onboarding@resend.dev>";
+    "beAcon Operational Intelligence <onboarding@resend.dev>";
   const toList = recipients.map((r) => r.email);
 
   const summary =
@@ -126,7 +126,7 @@ export async function POST(
     `Daily report for ${data.date} attached. ${data.reports.length} report${data.reports.length === 1 ? "" : "s"} included.`;
 
   const bodyText = [
-    `Morey's Piers — Daily Operations Report`,
+    `beAcon · Daily Operations Report for Morey's Piers`,
     `Date: ${data.date}`,
     ``,
     summary,
@@ -137,7 +137,7 @@ export async function POST(
   const sendResult = await resend.emails.send({
     from,
     to: toList,
-    subject: `Morey's Daily Report — ${data.date}`,
+    subject: `beAcon · Daily Report — Morey's Piers · ${data.date}`,
     text: bodyText,
     attachments: [
       {

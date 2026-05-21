@@ -152,7 +152,7 @@ export default async function SupervisorDashboard({
           <div className="flex flex-wrap gap-2">
             <Link
               href={`/supervisor/build/${date}`}
-              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-soft bg-morey-yellow text-morey-deep text-sm font-semibold hover:bg-morey-yellowDark transition shadow-sm"
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-soft bg-beacon-navy text-white text-sm font-semibold hover:bg-beacon-charcoal transition shadow-sm"
             >
               Build Daily Report
               <ChevronRight className="w-4 h-4" />

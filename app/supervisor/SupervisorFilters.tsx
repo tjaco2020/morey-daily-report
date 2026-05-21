@@ -200,7 +200,7 @@ export function SupervisorFilters({
           <button
             type="submit"
             disabled={pending}
-            className="px-3 py-1.5 rounded-md bg-morey-yellow text-morey-deep text-sm font-semibold hover:bg-morey-yellowDark disabled:opacity-60 transition"
+            className="px-3 py-1.5 rounded-md bg-beacon-navy text-white text-sm font-semibold hover:bg-beacon-charcoal disabled:opacity-60 transition"
           >
             Go
           </button>

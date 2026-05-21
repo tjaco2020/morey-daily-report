@@ -61,7 +61,7 @@ export function EmbedClient() {
           </h2>
           <button
             onClick={copy}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-morey-yellow text-morey-deep text-xs font-semibold hover:bg-morey-yellowDark transition shadow-sm"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-beacon-navy text-white text-xs font-semibold hover:bg-beacon-charcoal transition shadow-sm"
           >
             {copied ? (
               <>

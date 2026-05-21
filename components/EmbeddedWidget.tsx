@@ -123,7 +123,7 @@ export function EmbeddedWidget() {
         <button
           onClick={() => setOpen(true)}
           aria-label="Open Morey's Daily Report"
-          className="fixed bottom-3 right-3 w-16 h-16 rounded-full bg-morey-yellow text-morey-deep shadow-bubble flex items-center justify-center hover:scale-105 active:scale-95 transition-all duration-200 animate-pulse-soft"
+          className="fixed bottom-3 right-3 w-16 h-16 rounded-full bg-beacon-navy text-white shadow-bubble flex items-center justify-center hover:scale-105 active:scale-95 transition-all duration-200 animate-pulse-soft"
         >
           <MessageSquare className="w-7 h-7" strokeWidth={2.2} />
         </button>
@@ -250,7 +250,7 @@ export function EmbeddedWidget() {
               <button
                 onClick={() => submit(true)}
                 disabled={submitting}
-                className="flex-1 py-2.5 rounded-soft bg-morey-yellow text-morey-deep hover:bg-morey-yellowDark disabled:opacity-50 font-semibold text-sm transition shadow-sm"
+                className="flex-1 py-2.5 rounded-soft bg-beacon-navy text-white hover:bg-beacon-charcoal disabled:opacity-50 font-semibold text-sm transition shadow-sm"
               >
                 Submit
               </button>

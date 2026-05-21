@@ -333,7 +333,7 @@ export function FloatingWidget({ userId }: Props) {
               <button
                 onClick={() => save(true)}
                 disabled={submitting}
-                className="flex-1 py-2.5 rounded-soft bg-morey-yellow text-morey-deep hover:bg-morey-yellowDark disabled:opacity-50 font-semibold text-sm transition shadow-sm"
+                className="flex-1 py-2.5 rounded-soft bg-beacon-navy text-white hover:bg-beacon-charcoal disabled:opacity-50 font-semibold text-sm transition shadow-sm"
               >
                 Submit
               </button>
