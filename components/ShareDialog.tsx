@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { createBrowserSupabase } from "@/lib/supabase/client";
 import { X, Send, Share2 } from "lucide-react";
+import { useToast } from "./Toast";
 
 type Group = {
   id: string;
@@ -19,6 +20,7 @@ type Props = {
 
 export function ShareDialog({ reportIds, caseNumber, onClose }: Props) {
   const supabase = createBrowserSupabase();
+  const toast = useToast();
   const [groups, setGroups] = useState<Group[]>([]);
   const [groupId, setGroupId] = useState<string>("");
   const [customEmails, setCustomEmails] = useState<string>("");
@@ -94,9 +96,13 @@ export function ShareDialog({ reportIds, caseNumber, onClose }: Props) {
       });
       const body = await res.json();
       if (!res.ok) throw new Error(body.error || "Send failed");
-      const list = Array.isArray(body.sent_to) ? body.sent_to.join(", ") : "";
-      setStatus({ msg: `Sent to: ${list}`, ok: true });
-      setTimeout(onClose, 1400);
+      const list = Array.isArray(body.sent_to) ? body.sent_to : [];
+      const summary =
+        list.length <= 2
+          ? `Sent to ${list.join(", ")}`
+          : `Sent to ${list.length} recipients`;
+      toast(summary, "success");
+      onClose();
     } catch (err) {
       setStatus({
         msg: err instanceof Error ? err.message : "Could not send.",

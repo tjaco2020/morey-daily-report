@@ -9,28 +9,48 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        // Morey's Piers brand palette (per 2017 logo guidelines).
-        // Yellow is the primary. Orange and brown are accents/shadows.
-        // Teal is the supporting background tone seen throughout the guide.
+        // ── beAcon brand palette ─────────────────────────────────────
+        // Premium operational intelligence. Navy dominates. Teal signals
+        // intelligence / live state / AI. Gold is sparing premium accent.
+        beacon: {
+          navy:      "#0F172A",
+          charcoal:  "#1E293B",
+          teal:      "#00B3A7",
+          tealDark:  "#008F86",
+          tealSoft:  "#E0F7F5",
+          gold:      "#FFC72C",
+          goldDark:  "#E5B226",
+          goldSoft:  "#FFF4D6",
+          gray:      "#C6C8CA",
+          offwhite:  "#F8FAFC",
+          line:      "#E2E8F0",
+          mid:       "#475569",
+        },
+
+        // ── Legacy morey-* aliases ───────────────────────────────────
+        // Kept for backward compat while we sweep classes across files.
+        // Hex values remapped to align with beAcon palette where it
+        // makes sense, so visual rebrand takes effect immediately.
         morey: {
-          yellow:      "#FFC72C", // Pantone 123 C — PRIMARY
-          yellowDark:  "#E5B226", // hover / shadow
-          yellowSoft:  "#FFF4D6", // tints
-          orange:      "#DB821F", // Pantone 145 C — secondary
+          yellow:      "#FFC72C", // gold — used sparingly now
+          yellowDark:  "#E5B226",
+          yellowSoft:  "#FFF4D6",
+          orange:      "#DB821F", // kept (warm accent, used rarely)
           orangeDark:  "#B86A15",
-          brown:       "#975A11", // Pantone 1395 C — depth accent
-          teal:        "#5DBEC9", // brand supporting (banners)
-          tealSoft:    "#E0EBE8", // brand background mint
-          ocean:       "#0891B2", // info / links (kept from prior pass)
-          deep:        "#0F172A", // primary text + dark surface
-          deepHover:   "#1E293B",
+          brown:       "#975A11",
+          teal:        "#00B3A7", // remapped → beacon teal
+          tealSoft:    "#E0F7F5",
+          ocean:       "#00B3A7", // remapped → beacon teal (was cyan)
+          deep:        "#0F172A", // navy
+          deepHover:   "#1E293B", // charcoal
           mid:         "#475569",
           line:        "#E2E8F0",
-          sand:        "#FAF8F1", // warm cream page background
+          sand:        "#F8FAFC", // remapped → off-white (was warm cream)
           paper:       "#FFFFFF",
         },
       },
       fontFamily: {
+        // Geist + Inter family for that operational-SaaS feel
         sans: [
           "var(--font-inter)",
           "system-ui",
@@ -47,15 +67,15 @@ const config: Config = {
         base: ["1rem",     { lineHeight: "1.55rem" }],
       },
       borderRadius: {
-        bubble: "1.25rem",
-        soft:   "0.75rem",
+        bubble: "1rem",
+        soft:   "0.625rem",
       },
       boxShadow: {
-        card:       "0 1px 2px 0 rgb(15 23 42 / 0.04), 0 1px 3px 0 rgb(15 23 42 / 0.06)",
+        card:       "0 1px 2px 0 rgb(15 23 42 / 0.04), 0 1px 3px 0 rgb(15 23 42 / 0.05)",
         cardHover:  "0 4px 8px -2px rgb(15 23 42 / 0.06), 0 2px 4px -2px rgb(15 23 42 / 0.04)",
-        bubble:     "0 20px 40px -16px rgba(255, 199, 44, 0.55), 0 8px 16px -8px rgba(151, 90, 17, 0.18)",
-        panel:      "0 24px 48px -20px rgba(15, 23, 42, 0.25), 0 8px 20px -8px rgba(15, 23, 42, 0.08)",
-        focus:      "0 0 0 3px rgba(255, 199, 44, 0.30)",
+        bubble:     "0 20px 40px -16px rgba(15, 23, 42, 0.40), 0 8px 16px -8px rgba(0, 179, 167, 0.18)",
+        panel:      "0 24px 48px -20px rgba(15, 23, 42, 0.28), 0 8px 20px -8px rgba(15, 23, 42, 0.10)",
+        focus:      "0 0 0 3px rgba(0, 179, 167, 0.30)",
       },
       keyframes: {
         fadeIn: {
@@ -67,14 +87,15 @@ const config: Config = {
           "100%": { opacity: "1", transform: "translateY(0)" },
         },
         pulseSoft: {
-          "0%, 100%": { boxShadow: "0 0 0 0 rgba(255, 199, 44, 0.45)" },
-          "50%":      { boxShadow: "0 0 0 12px rgba(255, 199, 44, 0)" },
+          // Teal halo — signals live / AI / intelligence
+          "0%, 100%": { boxShadow: "0 0 0 0 rgba(0, 179, 167, 0.40)" },
+          "50%":      { boxShadow: "0 0 0 12px rgba(0, 179, 167, 0)" },
         },
       },
       animation: {
         "fade-in":   "fadeIn 0.2s ease-out",
         "slide-up":  "slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1)",
-        "pulse-soft":"pulseSoft 2.6s ease-out infinite",
+        "pulse-soft":"pulseSoft 2.8s ease-out infinite",
       },
     },
   },

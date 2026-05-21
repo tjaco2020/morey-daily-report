@@ -9,6 +9,10 @@ type Props = {
   className?: string;
 };
 
+/**
+ * Friendly empty-state used when a list has no items. Branded yellow halo
+ * around the icon to feel warmer than a plain gray tile.
+ */
 export function EmptyState({
   icon: Icon = Inbox,
   title,
@@ -18,16 +22,22 @@ export function EmptyState({
 }: Props) {
   return (
     <div
-      className={`flex flex-col items-center justify-center text-center px-6 py-10 ${className}`}
+      className={`flex flex-col items-center justify-center text-center px-6 py-12 ${className}`}
     >
-      <div className="w-12 h-12 rounded-full bg-slate-100 text-morey-mid flex items-center justify-center mb-3">
-        <Icon className="w-6 h-6" />
+      <div className="relative mb-4">
+        {/* Soft yellow halo behind the icon */}
+        <div className="absolute inset-0 rounded-full bg-morey-yellow/25 blur-2xl scale-150" />
+        <div className="relative w-14 h-14 rounded-2xl bg-gradient-to-br from-morey-yellow/40 to-morey-orange/30 border border-morey-yellow/60 text-morey-deep flex items-center justify-center shadow-sm">
+          <Icon className="w-6 h-6" strokeWidth={1.8} />
+        </div>
       </div>
-      <div className="text-sm font-medium text-morey-deep">{title}</div>
+      <div className="text-base font-semibold text-morey-deep">{title}</div>
       {description && (
-        <p className="text-xs text-morey-mid mt-1 max-w-sm">{description}</p>
+        <p className="text-sm text-morey-mid mt-1.5 max-w-md leading-relaxed">
+          {description}
+        </p>
       )}
-      {action && <div className="mt-3">{action}</div>}
+      {action && <div className="mt-4">{action}</div>}
     </div>
   );
 }

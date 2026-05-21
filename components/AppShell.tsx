@@ -6,6 +6,7 @@ import { createBrowserSupabase } from "@/lib/supabase/client";
 import { SessionGate } from "./SessionGate";
 import { FloatingWidget } from "./FloatingWidget";
 import { Header } from "./Header";
+import { ToastProvider } from "./Toast";
 
 /**
  * Wraps every authenticated page with:
@@ -44,7 +45,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const showShell = ready && !isPublicRoute && userId;
 
   return (
-    <>
+    <ToastProvider>
       {showShell && <Header />}
       {children}
       {showShell && (
@@ -53,6 +54,6 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           {sessionReady && <FloatingWidget userId={userId!} />}
         </>
       )}
-    </>
+    </ToastProvider>
   );
 }

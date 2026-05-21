@@ -17,8 +17,9 @@ const yesteryear = Yesteryear({
 });
 
 export const metadata: Metadata = {
-  title: "Morey's Daily Report",
-  description: "Internal operational reporting for Morey's Piers.",
+  title: "beAcon — Operational Intelligence",
+  description:
+    "AI-powered operational intelligence. Real-time reports, supervisor curation, automated daily and weekly insights.",
 };
 
 export default function RootLayout({

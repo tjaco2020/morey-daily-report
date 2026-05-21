@@ -14,6 +14,7 @@ import {
   ChevronDown,
   HelpCircle,
 } from "lucide-react";
+import { BeaconIcon } from "./BeaconLogo";
 
 type Profile = {
   full_name: string | null;
@@ -47,7 +48,6 @@ export function Header() {
     };
   }, [supabase, pathname]);
 
-  // Close the avatar menu on outside click
   useEffect(() => {
     function onClick(e: MouseEvent) {
       if (!menuRef.current) return;
@@ -65,39 +65,29 @@ export function Header() {
   const initial = display.charAt(0).toUpperCase();
 
   return (
-    <header className="sticky top-0 z-20 bg-white/85 backdrop-blur-md border-b border-slate-200/70">
+    <header className="sticky top-0 z-20 bg-beacon-offwhite/85 backdrop-blur-md border-b border-beacon-line">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between gap-3">
-        {/* Brand */}
+        {/* beAcon brand */}
         <Link
           href="/dashboard"
-          className="flex items-center gap-2.5 shrink-0"
+          className="flex items-center gap-2 shrink-0 group"
         >
-          <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-morey-yellow to-morey-orange text-morey-deep flex items-center justify-center text-sm font-extrabold shadow-sm">
-            M
-          </div>
-          <span className="font-semibold tracking-tight text-morey-deep hidden sm:inline">
-            Daily Report
+          <BeaconIcon className="w-7 h-7 text-beacon-navy" />
+          <span className="hidden sm:inline font-semibold tracking-tight text-beacon-navy text-[15px]">
+            be<span className="text-beacon-teal">A</span>con
           </span>
         </Link>
 
-        {/* Nav (scrolls horizontally on mobile if needed) */}
+        {/* Nav */}
         <nav className="flex-1 flex items-center justify-center sm:justify-start sm:ml-4 gap-0.5 overflow-x-auto text-sm scrollbar-none">
           <NavItem href="/dashboard" pathname={pathname} icon={LayoutDashboard}>
             Dashboard
           </NavItem>
-          <NavItem
-            href="/reports/today"
-            pathname={pathname}
-            icon={FileText}
-          >
+          <NavItem href="/reports/today" pathname={pathname} icon={FileText}>
             My reports
           </NavItem>
           {isSup && (
-            <NavItem
-              href="/supervisor"
-              pathname={pathname}
-              icon={ShieldCheck}
-            >
+            <NavItem href="/supervisor" pathname={pathname} icon={ShieldCheck}>
               Supervisor
             </NavItem>
           )}
@@ -111,42 +101,42 @@ export function Header() {
           </NavItem>
         </nav>
 
-        {/* Avatar / user menu */}
+        {/* Avatar dropdown */}
         <div className="relative shrink-0" ref={menuRef}>
           <button
             onClick={() => setMenuOpen((o) => !o)}
-            className="flex items-center gap-2 rounded-lg px-1.5 py-1 hover:bg-slate-100 transition"
+            className="flex items-center gap-2 rounded-lg px-1.5 py-1 hover:bg-beacon-line/60 transition"
             aria-label="Account menu"
           >
-            <div className="w-7 h-7 rounded-full bg-gradient-to-br from-morey-ocean to-[#0EA5E9] text-white flex items-center justify-center text-xs font-semibold">
+            <div className="w-7 h-7 rounded-full bg-beacon-navy text-beacon-teal flex items-center justify-center text-xs font-semibold border border-beacon-charcoal">
               {initial}
             </div>
-            <ChevronDown className="w-3.5 h-3.5 text-morey-mid hidden sm:inline" />
+            <ChevronDown className="w-3.5 h-3.5 text-beacon-mid hidden sm:inline" />
           </button>
           {menuOpen && (
-            <div className="absolute right-0 top-full mt-1 w-60 bg-white rounded-soft shadow-panel border border-slate-100 py-1.5 animate-fade-in">
-              <div className="px-3 py-2 border-b border-slate-100">
-                <div className="text-sm font-semibold text-morey-deep truncate">
+            <div className="absolute right-0 top-full mt-1 w-60 bg-white rounded-soft shadow-panel border border-beacon-line py-1.5 animate-fade-in">
+              <div className="px-3 py-2 border-b border-beacon-line">
+                <div className="text-sm font-semibold text-beacon-navy truncate">
                   {display}
                 </div>
-                <div className="text-xs text-morey-mid capitalize">
+                <div className="text-xs text-beacon-mid capitalize">
                   {profile.role}
                 </div>
               </div>
               <Link
                 href="/account/pin"
                 onClick={() => setMenuOpen(false)}
-                className="flex items-center gap-2 px-3 py-2 text-sm text-morey-deep hover:bg-slate-50"
+                className="flex items-center gap-2 px-3 py-2 text-sm text-beacon-navy hover:bg-beacon-line/40"
               >
-                <KeyRound className="w-4 h-4 text-morey-mid" />
+                <KeyRound className="w-4 h-4 text-beacon-mid" />
                 Set / change PIN
               </Link>
               <form action="/auth/signout" method="post">
                 <button
                   type="submit"
-                  className="w-full flex items-center gap-2 px-3 py-2 text-sm text-morey-deep hover:bg-slate-50"
+                  className="w-full flex items-center gap-2 px-3 py-2 text-sm text-beacon-navy hover:bg-beacon-line/40"
                 >
-                  <LogOut className="w-4 h-4 text-morey-mid" />
+                  <LogOut className="w-4 h-4 text-beacon-mid" />
                   Sign out
                 </button>
               </form>
@@ -174,10 +164,10 @@ function NavItem({
   return (
     <Link
       href={href}
-      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md transition whitespace-nowrap ${
+      className={`flex items-center gap-1.5 px-3 py-2 sm:py-1.5 rounded-md transition whitespace-nowrap min-h-[36px] ${
         active
-          ? "bg-slate-100 text-morey-deep font-medium"
-          : "text-morey-mid hover:text-morey-deep hover:bg-slate-50"
+          ? "bg-beacon-navy text-white font-medium"
+          : "text-beacon-mid hover:text-beacon-navy hover:bg-beacon-line/60 active:bg-beacon-line"
       }`}
     >
       <Icon className="w-4 h-4" />

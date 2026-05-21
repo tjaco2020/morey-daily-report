@@ -148,27 +148,27 @@ export function FloatingWidget({ userId }: Props) {
 
   return (
     <>
-      {/* Floating bubble */}
+      {/* Floating bubble — beAcon navy with teal signal */}
       {!open && (
         <button
           onClick={() => setOpen(true)}
-          className="fixed bottom-6 right-6 z-30 w-16 h-16 rounded-full bg-morey-yellow text-morey-deep shadow-bubble flex items-center justify-center hover:scale-105 active:scale-95 transition-all duration-200 animate-pulse-soft"
-          aria-label="Open report widget"
+          className="fixed bottom-6 right-6 z-30 w-14 h-14 rounded-full bg-beacon-navy text-beacon-teal shadow-bubble flex items-center justify-center hover:scale-105 active:scale-95 transition-all duration-200 animate-pulse-soft border border-beacon-charcoal"
+          aria-label="Log a report"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 24 24"
             fill="none"
             stroke="currentColor"
-            strokeWidth={2.2}
+            strokeWidth={2}
             strokeLinecap="round"
             strokeLinejoin="round"
-            className="w-7 h-7"
+            className="w-6 h-6"
           >
             <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
           </svg>
           {todayCount > 0 && (
-            <span className="absolute -top-1 -right-1 bg-morey-deep text-white text-[11px] font-bold rounded-full px-1.5 py-0.5 shadow min-w-[20px] text-center">
+            <span className="absolute -top-1 -right-1 bg-beacon-gold text-beacon-navy text-[11px] font-bold rounded-full px-1.5 py-0.5 shadow min-w-[20px] text-center border border-beacon-navy/20">
               {todayCount}
             </span>
           )}
