@@ -2,6 +2,7 @@ import { createServerSupabase } from "@/lib/supabase/server";
 import { redirect, notFound } from "next/navigation";
 import { EditReportForm } from "./EditReportForm";
 import { DeleteReportButton } from "@/components/DeleteReportButton";
+import { ShareButton } from "@/components/ShareButton";
 import Link from "next/link";
 import { formatDate, formatTime, statusLabel, statusClasses } from "@/lib/format";
 
@@ -131,20 +132,21 @@ export default async function ReportDetailPage({
             </div>
           )}
 
-          {canDelete && (
-            <div className="mt-6 pt-5 border-t border-slate-100">
-              <p className="text-xs text-morey-mid mb-2">
-                Deleting removes this report from the database and any
-                in-progress Daily Report. Already-sent Daily Reports keep
-                their snapshot. This action is logged.
-              </p>
+          <div className="mt-6 pt-5 border-t border-slate-100 flex flex-wrap items-center gap-3">
+            {(isOwner || isSupervisor) && (
+              <ShareButton
+                reportId={report.id}
+                caseNumber={report.case_number}
+              />
+            )}
+            {canDelete && (
               <DeleteReportButton
                 reportId={report.id}
                 caseNumber={report.case_number}
                 redirectTo={isOwner ? "/reports/today" : "/supervisor"}
               />
-            </div>
-          )}
+            )}
+          </div>
         </div>
       </div>
     </main>

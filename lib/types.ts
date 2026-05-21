@@ -40,6 +40,21 @@ export interface Location {
   active: boolean;
 }
 
+export interface ShareGroup {
+  id: string;
+  name: string;
+  description: string | null;
+  active: boolean;
+}
+
+export interface ShareGroupMember {
+  id: string;
+  group_id: string;
+  email: string;
+  name: string | null;
+  active: boolean;
+}
+
 export interface DailySession {
   id: string;
   user_id: string;

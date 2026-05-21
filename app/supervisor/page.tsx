@@ -12,6 +12,7 @@ import { SupervisorFilters } from "./SupervisorFilters";
 import { Download, Search, FileText, ChevronRight } from "lucide-react";
 import { EmptyState } from "@/components/EmptyState";
 import { DeleteReportButton } from "@/components/DeleteReportButton";
+import { ShareButton } from "@/components/ShareButton";
 
 export const dynamic = "force-dynamic";
 
@@ -248,6 +249,11 @@ export default async function SupervisorDashboard({
                             <FileText className="w-3.5 h-3.5" />
                             Open
                           </Link>
+                          <ShareButton
+                            reportId={r.id}
+                            caseNumber={r.case_number}
+                            variant="icon"
+                          />
                           <DeleteReportButton
                             reportId={r.id}
                             caseNumber={r.case_number}

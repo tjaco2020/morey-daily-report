@@ -66,6 +66,18 @@ export default async function AdminHome() {
             href="/admin/embed"
             ready
           />
+          <Tile
+            title="Share groups"
+            desc="Reusable email lists for the Share button on reports."
+            href="/admin/share-groups"
+            ready
+          />
+          <Tile
+            title="Weekly recap"
+            desc="Automated Monday-morning AI summary of the week."
+            href="/admin/weekly-recap"
+            ready
+          />
         </div>
       </div>
     </main>

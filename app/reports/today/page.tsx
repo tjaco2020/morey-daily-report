@@ -11,6 +11,7 @@ import {
 import { Clock, Pencil, FilePlus2 } from "lucide-react";
 import { EmptyState } from "@/components/EmptyState";
 import { DeleteReportButton } from "@/components/DeleteReportButton";
+import { ShareButton } from "@/components/ShareButton";
 
 export const dynamic = "force-dynamic";
 
@@ -91,6 +92,11 @@ export default async function TodayReportsPage() {
                       Edit
                     </Link>
                   )}
+                  <ShareButton
+                    reportId={r.id}
+                    caseNumber={r.case_number}
+                    variant="icon"
+                  />
                   {(r.status === "pending" || r.status === "submitted") && (
                     <DeleteReportButton
                       reportId={r.id}

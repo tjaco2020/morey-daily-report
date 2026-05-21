@@ -3,15 +3,25 @@
 
 /**
  * Today as YYYY-MM-DD in Morey's operating timezone (America/New_York).
- * Always returns the NJ date regardless of where the code runs (server or
- * client), so the business day is consistent across timezones.
+ * Always returns the NJ date regardless of where the code runs.
+ *
+ * Uses Intl.DateTimeFormat.formatToParts so we can assemble the string with
+ * guaranteed ASCII hyphens. Some Node/Vercel runtimes emit non-breaking
+ * hyphens via "en-CA" date formatting, which breaks URL pattern matching
+ * (causing 404s on routes like /supervisor/build/<date>).
  */
 export function todayLocal(): string {
-  // "en-CA" formats as YYYY-MM-DD; combined with the NY timezone gives the
-  // current calendar date in Wildwood.
-  return new Date().toLocaleDateString("en-CA", {
+  const fmt = new Intl.DateTimeFormat("en-US", {
     timeZone: "America/New_York",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
   });
+  const parts: Record<string, string> = {};
+  for (const p of fmt.formatToParts(new Date())) {
+    if (p.type !== "literal") parts[p.type] = p.value;
+  }
+  return `${parts.year}-${parts.month}-${parts.day}`;
 }
 
 /** Formats an ISO timestamp as "h:mm a" in local time. */
