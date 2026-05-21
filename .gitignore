@@ -21,3 +21,9 @@ out/
 .vercel
 next-env.d.ts
 *.tsbuildinfo
+
+# Sandbox-generated broken symlink (not part of project)
+scripts/test-pdf.tsx
+# Local sample artifacts (regenerable; do not commit)
+sample-daily-report.pdf
+sample-daily-email.html

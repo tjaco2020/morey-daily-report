@@ -17,7 +17,7 @@ export async function loadDailyReportData(
   const { data: dr } = await supabase
     .from("daily_reports")
     .select(
-      "id, status, ai_summary, supervisor_notes, weather_snapshot, metrics_snapshot, report_snapshot",
+      "id, status, ai_summary, supervisor_notes, weather_snapshot, metrics_snapshot, report_snapshot, sent_by",
     )
     .eq("report_date", date)
     .maybeSingle();
@@ -28,7 +28,7 @@ export async function loadDailyReportData(
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const snap = (dr as any).report_snapshot as
-    | { reports?: IncludedReport[] }
+    | { reports?: IncludedReport[]; curator?: DailyReportData["curator"] }
     | null;
 
   if (dr.status === "sent" && snap?.reports) {
@@ -61,6 +61,35 @@ export async function loadDailyReportData(
     });
   }
 
+  // Curator: pull name + department of whoever sent this report.
+  // Prefer the frozen snapshot if present; otherwise look up live.
+  let curator: DailyReportData["curator"] = null;
+  if (snap?.curator) {
+    curator = snap.curator;
+  } else if (dr.status === "sent" && (dr as { sent_by?: string }).sent_by) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const sentById = (dr as any).sent_by as string;
+    const { data: prof } = await supabase
+      .from("profiles")
+      .select(
+        `full_name, email, role,
+         primary_department:departments!profiles_primary_department_id_fkey(name)`,
+      )
+      .eq("id", sentById)
+      .maybeSingle();
+    if (prof) {
+      curator = {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        name: (prof as any).full_name ?? (prof as any).email ?? "Unknown",
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        role: (prof as any).role ?? "supervisor",
+        department:
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          (prof as any).primary_department?.name ?? null,
+      };
+    }
+  }
+
   return {
     date,
     status: dr.status,
@@ -69,5 +98,35 @@ export async function loadDailyReportData(
     ai_summary: dr.ai_summary,
     supervisor_notes: dr.supervisor_notes,
     reports,
+    curator,
+  };
+}
+
+/**
+ * Look up curator info for the user currently triggering a send.
+ * Used by the send route to attach curator metadata BEFORE the snapshot
+ * is frozen via mark_daily_report_sent().
+ */
+export async function loadCuratorForUser(
+  userId: string,
+): Promise<DailyReportData["curator"]> {
+  const supabase = createServerSupabase();
+  const { data: prof } = await supabase
+    .from("profiles")
+    .select(
+      `full_name, email, role,
+       primary_department:departments!profiles_primary_department_id_fkey(name)`,
+    )
+    .eq("id", userId)
+    .maybeSingle();
+  if (!prof) return null;
+  return {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    name: (prof as any).full_name ?? (prof as any).email ?? "Unknown",
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    role: (prof as any).role ?? "supervisor",
+    department:
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (prof as any).primary_department?.name ?? null,
   };
 }

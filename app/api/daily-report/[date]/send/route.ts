@@ -4,9 +4,13 @@ import { renderToBuffer } from "@react-pdf/renderer";
 import React from "react";
 import { Resend } from "resend";
 import { DailyReportPDF } from "@/lib/pdf/DailyReport";
-import { loadDailyReportData } from "@/lib/pdf/data";
+import { loadCuratorForUser, loadDailyReportData } from "@/lib/pdf/data";
 import { fetchWildwoodWeather } from "@/lib/weather";
 import { fetchDailyMetrics } from "@/lib/snowflake";
+import {
+  renderDailyReportEmailHTML,
+  renderDailyReportEmailText,
+} from "@/lib/email/dailyReport";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -51,6 +55,10 @@ export async function POST(
       { status: 404 },
     );
   }
+
+  // Stamp the curator from the user currently triggering the send so the
+  // PDF / email show the right name + department, and the snapshot freezes it.
+  data.curator = await loadCuratorForUser(user.id);
 
   const { data: dr } = await supabase
     .from("daily_reports")
@@ -120,25 +128,15 @@ export async function POST(
     "beAcon Operational Intelligence <onboarding@resend.dev>";
   const toList = recipients.map((r) => r.email);
 
-  const summary =
-    (data.ai_summary && data.ai_summary.trim()) ||
-    (data.supervisor_notes && data.supervisor_notes.trim()) ||
-    `Daily report for ${data.date} attached. ${data.reports.length} report${data.reports.length === 1 ? "" : "s"} included.`;
-
-  const bodyText = [
-    `beAcon · Daily Operations Report for Morey's Piers`,
-    `Date: ${data.date}`,
-    ``,
-    summary,
-    ``,
-    `(Full report attached as PDF.)`,
-  ].join("\n");
+  const bodyText = renderDailyReportEmailText(data);
+  const bodyHtml = renderDailyReportEmailHTML(data);
 
   const sendResult = await resend.emails.send({
     from,
     to: toList,
     subject: `beAcon · Daily Report — Morey's Piers · ${data.date}`,
     text: bodyText,
+    html: bodyHtml,
     attachments: [
       {
         filename: `morey-daily-${data.date}.pdf`,
@@ -163,6 +161,7 @@ export async function POST(
     metrics: data.metrics,
     ai_summary: data.ai_summary,
     supervisor_notes: data.supervisor_notes,
+    curator: data.curator ?? null,
     sent_message_id: sendResult.data?.id ?? null,
   };
   const { error: markErr } = await supabase.rpc("mark_daily_report_sent", {

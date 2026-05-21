@@ -12,6 +12,10 @@ import { DailyReportPDF } from "@/lib/pdf/DailyReport";
 import { loadDailyReportData } from "@/lib/pdf/data";
 import { fetchWildwoodWeather } from "@/lib/weather";
 import { fetchDailyMetrics } from "@/lib/snowflake";
+import {
+  renderDailyReportEmailHTML,
+  renderDailyReportEmailText,
+} from "@/lib/email/dailyReport";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -177,15 +181,8 @@ async function handle(request: NextRequest) {
     from,
     to: recipients.map((r) => r.email),
     subject: `beAcon · Daily Report — Morey's Piers · ${date} (Auto)`,
-    text: [
-      `beAcon · Daily Operations Report for Morey's Piers (auto-generated fallback)`,
-      `Date: ${date}`,
-      ``,
-      `No manual Daily Report was sent for this date by 1:30 AM.`,
-      `This automated summary captures weather, transaction, and ticket data only.`,
-      ``,
-      `(Full report attached as PDF.)`,
-    ].join("\n"),
+    text: renderDailyReportEmailText(data, { fallback: true }),
+    html: renderDailyReportEmailHTML(data, { fallback: true }),
     attachments: [
       {
         filename: `morey-daily-${date}-auto.pdf`,
@@ -208,6 +205,7 @@ async function handle(request: NextRequest) {
     metrics: data.metrics,
     ai_summary: data.ai_summary,
     supervisor_notes: data.supervisor_notes,
+    curator: null,
     sent_message_id: sendResult.data?.id ?? null,
     fallback: true,
   };
