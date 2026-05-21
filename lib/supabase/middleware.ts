@@ -16,7 +16,8 @@ export async function updateSession(request: NextRequest) {
         getAll() {
           return request.cookies.getAll();
         },
-        setAll(items) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        setAll(items: { name: string; value: string; options?: any }[]) {
           items.forEach(({ name, value }) =>
             request.cookies.set(name, value),
           );
