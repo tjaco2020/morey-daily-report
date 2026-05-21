@@ -12,7 +12,7 @@ create table if not exists public.weekly_recaps (
   week_end           date not null,               -- Sunday of the week covered
   ai_summary         text,
   total_reports      int default 0,
-  stats_snapshot     jsonb,                       -- {by_category, by_location, by_status}
+  stats_snapshot     jsonb,                       -- {by_category, by_location, by_day}
   recipient_emails   jsonb,                       -- [{email, name?}] snapshot at send time
   sent_at            timestamptz,
   sent_message_id    text,

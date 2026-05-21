@@ -86,6 +86,25 @@ export function ShareGroupsClient({
     }
   }
 
+  async function updateGroup(group: Group, patch: Partial<Group>) {
+    setBusy(true);
+    setMessage(null);
+    try {
+      const { error } = await supabase
+        .from("share_groups")
+        .update(patch)
+        .eq("id", group.id);
+      if (error) throw error;
+      setGroups(
+        groups.map((g) => (g.id === group.id ? { ...g, ...patch } : g)),
+      );
+    } catch (err) {
+      showMsg(err instanceof Error ? err.message : "Could not save.", false);
+    } finally {
+      setBusy(false);
+    }
+  }
+
   async function deleteGroup(group: Group) {
     if (
       !window.confirm(
@@ -269,7 +288,79 @@ export function ShareGroupsClient({
               </div>
 
               {isOpen && (
-                <div className="p-5 space-y-3">
+                <div className="p-5 space-y-4">
+                  {/* Inline group editor */}
+                  <div className="p-3 rounded-md bg-slate-50 border border-slate-200 space-y-2">
+                    <div className="grid grid-cols-1 sm:grid-cols-5 gap-2 items-center">
+                      <label className="text-xs font-medium text-morey-mid sm:col-span-1">
+                        Group name
+                      </label>
+                      <input
+                        value={g.name}
+                        onChange={(e) =>
+                          setGroups(
+                            groups.map((x) =>
+                              x.id === g.id
+                                ? { ...x, name: e.target.value }
+                                : x,
+                            ),
+                          )
+                        }
+                        onBlur={(e) => {
+                          const initial =
+                            initialGroups.find((i) => i.id === g.id)?.name ?? "";
+                          if (
+                            e.target.value !== initial &&
+                            e.target.value.trim().length > 0
+                          ) {
+                            updateGroup(g, { name: e.target.value.trim() });
+                          }
+                        }}
+                        className="sm:col-span-3 px-3 py-1.5 rounded-md border border-slate-200 focus:outline-none focus:ring-2 focus:ring-morey-yellow/40 text-sm bg-white"
+                      />
+                      <button
+                        onClick={() => updateGroup(g, { active: !g.active })}
+                        className={`text-[10px] uppercase tracking-wider font-medium px-2 py-1 rounded-md border ${
+                          g.active
+                            ? "bg-green-50 border-green-200 text-green-800"
+                            : "bg-slate-200 border-slate-300 text-slate-600"
+                        }`}
+                      >
+                        {g.active ? "Active" : "Hidden"}
+                      </button>
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-5 gap-2 items-center">
+                      <label className="text-xs font-medium text-morey-mid sm:col-span-1">
+                        Description
+                      </label>
+                      <input
+                        value={g.description}
+                        onChange={(e) =>
+                          setGroups(
+                            groups.map((x) =>
+                              x.id === g.id
+                                ? { ...x, description: e.target.value }
+                                : x,
+                            ),
+                          )
+                        }
+                        onBlur={(e) => {
+                          const initial =
+                            initialGroups.find((i) => i.id === g.id)
+                              ?.description ?? "";
+                          if (e.target.value !== initial) {
+                            updateGroup(g, {
+                              description: e.target.value,
+                            });
+                          }
+                        }}
+                        placeholder="What this group is for (optional)"
+                        className="sm:col-span-4 px-3 py-1.5 rounded-md border border-slate-200 focus:outline-none focus:ring-2 focus:ring-morey-yellow/40 text-sm bg-white"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Add member */}
                   <form
                     onSubmit={(e) => addMember(e, g.id)}
                     className="grid grid-cols-1 sm:grid-cols-5 gap-2"
