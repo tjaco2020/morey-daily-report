@@ -6,6 +6,7 @@ import { todayLocal } from "@/lib/format";
 import type { Category } from "@/lib/types";
 import Link from "next/link";
 import { ProofreadButton } from "./ProofreadButton";
+import { ChangeTerminalDialog } from "./ChangeTerminalDialog";
 
 type Props = {
   userId: string;
@@ -35,6 +36,7 @@ export function FloatingWidget({ userId }: Props) {
   const [submitting, setSubmitting] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [messageOk, setMessageOk] = useState(false);
+  const [terminalDialog, setTerminalDialog] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -213,21 +215,31 @@ export function FloatingWidget({ userId }: Props) {
             </button>
           </div>
 
-          {/* Shift terminal chip */}
-          <div className="bg-slate-50/80 px-5 py-2.5 text-xs text-morey-mid border-b border-slate-100 flex items-center gap-2">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill="currentColor"
-              className="w-3.5 h-3.5 text-morey-ocean"
-            >
-              <path d="M12 2a7 7 0 0 0-7 7c0 5.25 7 13 7 13s7-7.75 7-13a7 7 0 0 0-7-7zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5z" />
-            </svg>
-            Logging from{" "}
-            <strong className="text-morey-deep">
-              {session.terminal_name ?? "(no terminal set)"}
-            </strong>
-          </div>
+          {/* Shift terminal chip — clickable to swap terminal mid-shift */}
+          <button
+            type="button"
+            onClick={() => setTerminalDialog(true)}
+            className="w-full bg-slate-50/80 px-5 py-2.5 text-xs text-morey-mid border-b border-slate-100 flex items-center justify-between gap-2 hover:bg-beacon-tealSoft/60 transition text-left"
+            title="Change terminal"
+          >
+            <span className="flex items-center gap-2">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="currentColor"
+                className="w-3.5 h-3.5 text-morey-ocean"
+              >
+                <path d="M12 2a7 7 0 0 0-7 7c0 5.25 7 13 7 13s7-7.75 7-13a7 7 0 0 0-7-7zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5z" />
+              </svg>
+              Logging from{" "}
+              <strong className="text-morey-deep">
+                {session.terminal_name ?? "(no terminal set)"}
+              </strong>
+            </span>
+            <span className="text-[10px] uppercase tracking-wider text-beacon-tealDark font-semibold">
+              Change
+            </span>
+          </button>
 
           <div className="p-5 space-y-3">
             <textarea
@@ -358,6 +370,17 @@ export function FloatingWidget({ userId }: Props) {
           </div>
         </div>
       )}
+
+      <ChangeTerminalDialog
+        open={terminalDialog}
+        onClose={() => setTerminalDialog(false)}
+        onSaved={(terminalId, terminalName) => {
+          setSession({
+            terminal_id: terminalId,
+            terminal_name: terminalName,
+          });
+        }}
+      />
     </>
   );
 }

@@ -13,8 +13,12 @@ import {
   KeyRound,
   ChevronDown,
   HelpCircle,
+  MapPin,
+  Sunset,
 } from "lucide-react";
 import { BeaconIcon } from "./BeaconLogo";
+import { ChangeTerminalDialog } from "./ChangeTerminalDialog";
+import { EndDayDialog } from "./EndDayDialog";
 
 type Profile = {
   full_name: string | null;
@@ -28,6 +32,8 @@ export function Header() {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
+  const [terminalDialog, setTerminalDialog] = useState(false);
+  const [endDayDialog, setEndDayDialog] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -101,6 +107,16 @@ export function Header() {
           </NavItem>
         </nav>
 
+        {/* End day button — desktop only; mobile users use the avatar menu */}
+        <button
+          onClick={() => setEndDayDialog(true)}
+          className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-soft border border-beacon-line bg-white text-beacon-navy hover:bg-beacon-tealSoft hover:border-beacon-teal/40 transition text-xs font-medium shrink-0"
+          title="End my day — recap to supervisor"
+        >
+          <Sunset className="w-3.5 h-3.5 text-beacon-tealDark" />
+          End day
+        </button>
+
         {/* Avatar dropdown */}
         <div className="relative shrink-0" ref={menuRef}>
           <button
@@ -123,6 +139,28 @@ export function Header() {
                   {profile.role}
                 </div>
               </div>
+              <button
+                type="button"
+                onClick={() => {
+                  setMenuOpen(false);
+                  setTerminalDialog(true);
+                }}
+                className="w-full flex items-center gap-2 px-3 py-2 text-sm text-beacon-navy hover:bg-beacon-line/40 text-left"
+              >
+                <MapPin className="w-4 h-4 text-beacon-mid" />
+                Change terminal
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setMenuOpen(false);
+                  setEndDayDialog(true);
+                }}
+                className="w-full sm:hidden flex items-center gap-2 px-3 py-2 text-sm text-beacon-navy hover:bg-beacon-line/40 text-left"
+              >
+                <Sunset className="w-4 h-4 text-beacon-tealDark" />
+                End my day
+              </button>
               <Link
                 href="/account/pin"
                 onClick={() => setMenuOpen(false)}
@@ -144,6 +182,15 @@ export function Header() {
           )}
         </div>
       </div>
+
+      <ChangeTerminalDialog
+        open={terminalDialog}
+        onClose={() => setTerminalDialog(false)}
+      />
+      <EndDayDialog
+        open={endDayDialog}
+        onClose={() => setEndDayDialog(false)}
+      />
     </header>
   );
 }

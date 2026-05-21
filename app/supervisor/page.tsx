@@ -17,6 +17,8 @@ import {
   History,
   CheckCircle2,
   FileEdit,
+  Sunset,
+  MapPin,
 } from "lucide-react";
 import { EmptyState } from "@/components/EmptyState";
 import { DeleteReportButton } from "@/components/DeleteReportButton";
@@ -52,6 +54,7 @@ export default async function SupervisorDashboard({
     { data: outlets },
     { data: users },
     { data: dailyReport },
+    { data: recaps },
   ] = await Promise.all([
     supabase
       .from("categories")
@@ -88,6 +91,15 @@ export default async function SupervisorDashboard({
       .select("id, status, sent_at, email_recipients, ai_summary")
       .eq("report_date", date)
       .maybeSingle(),
+    supabase
+      .from("shift_recaps")
+      .select(
+        `id, recap_text, open_drafts_count, pending_review_count, created_at,
+         profiles!shift_recaps_user_id_fkey(full_name, email, role),
+         terminals(name)`,
+      )
+      .eq("recap_date", date)
+      .order("created_at", { ascending: false }),
   ]);
 
   let q = supabase
@@ -216,6 +228,14 @@ export default async function SupervisorDashboard({
           <StatTile label="Locked" value={counts.locked} tone="locked" />
           <StatTile label="Archived" value={counts.archived} tone="archived" />
         </section>
+
+        {/* End-of-shift recaps */}
+        {recaps && recaps.length > 0 && (
+          <RecapsPanel
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            recaps={recaps as any[]}
+          />
+        )}
 
         <section className="bg-white rounded-bubble shadow-card border border-slate-100/80 p-4 mb-5">
           <SupervisorFilters
@@ -356,6 +376,89 @@ export default async function SupervisorDashboard({
         </section>
       </div>
     </main>
+  );
+}
+
+function RecapsPanel({
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  recaps,
+}: {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  recaps: any[];
+}) {
+  return (
+    <section className="bg-white rounded-bubble shadow-card border border-slate-100/80 p-4 mb-5">
+      <header className="flex items-center justify-between mb-3">
+        <div className="flex items-center gap-2">
+          <div className="w-7 h-7 rounded-full bg-beacon-tealSoft flex items-center justify-center">
+            <Sunset className="w-3.5 h-3.5 text-beacon-tealDark" />
+          </div>
+          <div>
+            <h2 className="text-sm font-semibold text-beacon-navy">
+              End-of-shift recaps
+            </h2>
+            <p className="text-xs text-beacon-mid">
+              Quick notes from associates who ended their day.
+            </p>
+          </div>
+        </div>
+        <span className="text-[10px] uppercase tracking-wider text-beacon-mid font-medium px-2 py-0.5 rounded bg-beacon-tealSoft text-beacon-tealDark">
+          {recaps.length} {recaps.length === 1 ? "recap" : "recaps"}
+        </span>
+      </header>
+
+      <ul className="space-y-2.5">
+        {recaps.map((r) => {
+          const who =
+            r.profiles?.full_name ?? r.profiles?.email ?? "—";
+          const role: string = r.profiles?.role ?? "user";
+          const terminal: string | null = r.terminals?.name ?? null;
+          const drafts: number = r.open_drafts_count ?? 0;
+          const pending: number = r.pending_review_count ?? 0;
+          const created = new Date(r.created_at).toLocaleTimeString([], {
+            hour: "numeric",
+            minute: "2-digit",
+          });
+          return (
+            <li
+              key={r.id}
+              className="rounded-md border border-beacon-line bg-beacon-offwhite p-3"
+            >
+              <div className="flex flex-wrap items-center gap-x-2 gap-y-1 mb-1.5">
+                <span className="text-sm font-semibold text-beacon-navy">
+                  {who}
+                </span>
+                <span className="text-[10px] uppercase tracking-wider text-beacon-mid font-medium">
+                  · {role}
+                </span>
+                {terminal && (
+                  <span className="text-xs text-beacon-tealDark inline-flex items-center gap-0.5">
+                    <MapPin className="w-3 h-3" />
+                    {terminal}
+                  </span>
+                )}
+                <span className="text-xs text-beacon-mid">
+                  · ended at {created}
+                </span>
+                {drafts > 0 && (
+                  <span className="text-[10px] font-medium px-1.5 py-0.5 rounded bg-amber-100 text-amber-800">
+                    {drafts} draft{drafts === 1 ? "" : "s"} left
+                  </span>
+                )}
+                {pending > 0 && (
+                  <span className="text-[10px] font-medium px-1.5 py-0.5 rounded bg-sky-100 text-sky-800">
+                    {pending} awaiting review
+                  </span>
+                )}
+              </div>
+              <p className="text-sm text-beacon-navy/90 whitespace-pre-wrap break-words">
+                {r.recap_text}
+              </p>
+            </li>
+          );
+        })}
+      </ul>
+    </section>
   );
 }
 
