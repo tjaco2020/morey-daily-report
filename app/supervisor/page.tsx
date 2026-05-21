@@ -9,7 +9,15 @@ import {
 } from "@/lib/format";
 import Link from "next/link";
 import { SupervisorFilters } from "./SupervisorFilters";
-import { Download, Search, FileText, ChevronRight } from "lucide-react";
+import {
+  Download,
+  Search,
+  FileText,
+  ChevronRight,
+  History,
+  CheckCircle2,
+  FileEdit,
+} from "lucide-react";
 import { EmptyState } from "@/components/EmptyState";
 import { DeleteReportButton } from "@/components/DeleteReportButton";
 import { ShareButton } from "@/components/ShareButton";
@@ -43,6 +51,7 @@ export default async function SupervisorDashboard({
     { data: departments },
     { data: outlets },
     { data: users },
+    { data: dailyReport },
   ] = await Promise.all([
     supabase
       .from("categories")
@@ -74,6 +83,11 @@ export default async function SupervisorDashboard({
       .select("id, full_name, email")
       .eq("active", true)
       .order("full_name"),
+    supabase
+      .from("daily_reports")
+      .select("id, status, sent_at, email_recipients, ai_summary")
+      .eq("report_date", date)
+      .maybeSingle(),
   ]);
 
   let q = supabase
@@ -157,6 +171,13 @@ export default async function SupervisorDashboard({
               Build Daily Report
               <ChevronRight className="w-4 h-4" />
             </Link>
+            <Link
+              href="/supervisor/history"
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-soft bg-white border border-slate-200 text-sm text-morey-deep hover:bg-slate-50 transition"
+            >
+              <History className="w-3.5 h-3.5" />
+              Daily Report history
+            </Link>
             <a
               href={exportHref}
               className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-soft bg-white border border-slate-200 text-sm text-morey-deep hover:bg-slate-50 transition"
@@ -166,6 +187,26 @@ export default async function SupervisorDashboard({
             </a>
           </div>
         </header>
+
+        {/* Daily Report status for the viewed date */}
+        {dailyReport && (
+          <DailyReportBanner
+            date={date}
+            status={dailyReport.status}
+            sentAt={dailyReport.sent_at}
+            recipients={
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              Array.isArray((dailyReport as any).email_recipients)
+                ? // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                  ((dailyReport as any).email_recipients as Array<{
+                    email?: string;
+                    name?: string;
+                  }>)
+                : []
+            }
+            aiSummary={dailyReport.ai_summary}
+          />
+        )}
 
         <section className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 mb-5">
           <StatTile label="Total" value={counts.total} tone="default" />
@@ -315,6 +356,93 @@ export default async function SupervisorDashboard({
         </section>
       </div>
     </main>
+  );
+}
+
+function DailyReportBanner({
+  date,
+  status,
+  sentAt,
+  recipients,
+  aiSummary,
+}: {
+  date: string;
+  status: string;
+  sentAt: string | null;
+  recipients: Array<{ email?: string; name?: string }>;
+  aiSummary: string | null;
+}) {
+  const isSent = status === "sent";
+  const recipientCount = recipients?.length ?? 0;
+  return (
+    <section
+      className={`rounded-bubble border p-4 mb-5 ${
+        isSent
+          ? "bg-beacon-teal/5 border-beacon-teal/30"
+          : "bg-amber-50/60 border-amber-200"
+      }`}
+    >
+      <div className="flex items-start gap-3">
+        <div
+          className={`shrink-0 mt-0.5 ${
+            isSent ? "text-beacon-teal" : "text-amber-600"
+          }`}
+        >
+          {isSent ? (
+            <CheckCircle2 className="w-5 h-5" />
+          ) : (
+            <FileEdit className="w-5 h-5" />
+          )}
+        </div>
+        <div className="flex-1 min-w-0">
+          <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
+            <h2 className="text-sm font-semibold text-morey-deep">
+              {isSent
+                ? `Daily Report sent for ${formatDate(date)}`
+                : `Daily Report draft in progress for ${formatDate(date)}`}
+            </h2>
+            {isSent && sentAt && (
+              <span className="text-xs text-morey-mid">
+                · {new Date(sentAt).toLocaleString([], {
+                  month: "short",
+                  day: "numeric",
+                  hour: "numeric",
+                  minute: "2-digit",
+                })}
+              </span>
+            )}
+            {isSent && recipientCount > 0 && (
+              <span className="text-xs text-morey-mid">
+                · {recipientCount} recipient{recipientCount === 1 ? "" : "s"}
+              </span>
+            )}
+          </div>
+          {aiSummary && (
+            <p className="text-sm text-morey-deep/90 mt-1 line-clamp-2">
+              {aiSummary}
+            </p>
+          )}
+          <div className="flex flex-wrap gap-3 mt-2">
+            <Link
+              href={`/supervisor/build/${date}`}
+              className="text-xs font-medium text-beacon-teal hover:text-beacon-tealDark transition inline-flex items-center gap-1"
+            >
+              Open builder
+              <ChevronRight className="w-3 h-3" />
+            </Link>
+            <a
+              href={`/api/daily-report/${date}/pdf`}
+              target="_blank"
+              rel="noreferrer"
+              className="text-xs font-medium text-beacon-teal hover:text-beacon-tealDark transition inline-flex items-center gap-1"
+            >
+              View PDF
+              <FileText className="w-3 h-3" />
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
   );
 }
 

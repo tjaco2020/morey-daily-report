@@ -27,7 +27,7 @@ const SECTIONS: {
         q: "Where do I log a report?",
         a: (
           <>
-            Click the yellow bubble in the bottom-right corner of any page.
+            Click the beAcon bubble in the bottom-right corner of any page.
             Type what happened, pick a category, hit Submit. Done.
           </>
         ),

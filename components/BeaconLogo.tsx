@@ -1,20 +1,22 @@
 /**
  * beAcon brand mark and wordmark.
  *
- * The "A" glyph is a geometric lighthouse silhouette:
- *   - chunky two-leg "A" body with an inner doorway cutout at the base
- *   - separated teal signal triangle on top (the beam)
- *   - small gold accent inside the beam (the flame)
+ * The "A" glyph is a chunky lighthouse silhouette:
+ *   - Solid trapezoidal tower body with a small inner triangular void at top
+ *     (just enough negative space to read as an "A")
+ *   - Clear doorway cutout at the base
+ *   - Separated teal signal triangle (beam) above the apex
+ *   - Gold flame accent inside the beam
  *
- * Designed to read confidently at any size from 16px favicon up to a
- * full wordmark. Uses currentColor for the body so it inherits text
- * color and works in both light and dark contexts.
+ * Designed to feel architectural and confident at any size from 16px
+ * favicon to a full wordmark. Uses currentColor for the body so it
+ * inherits text color in both light and dark contexts.
  */
 
 type SizeProps = {
   className?: string;
-  bodyColor?: string;   // the chunky "A" silhouette (defaults to currentColor)
-  beamColor?: string;   // the upper signal triangle
+  bodyColor?: string; // the chunky "A" silhouette (defaults to currentColor)
+  beamColor?: string; // the upper signal triangle
   accentColor?: string; // the inner flame
 };
 
@@ -26,7 +28,7 @@ export function BeaconIcon({
 }: SizeProps) {
   return (
     <svg
-      viewBox="0 0 48 56"
+      viewBox="0 0 64 80"
       xmlns="http://www.w3.org/2000/svg"
       className={className}
       aria-label="beAcon"
@@ -34,26 +36,25 @@ export function BeaconIcon({
     >
       {/*
         Chunky lighthouse A — single path using evenodd fill rule.
-        Subpath 1: outer triangle (the full A silhouette).
-        Subpath 2: inner V cutout (the empty interior).
-        Subpath 3: small doorway cutout at the base.
-        Result: solid legs + interior void + doorway opening.
+        Subpath 1: outer triangular silhouette (the tower body).
+        Subpath 2: small inner triangular void at top (reads as the A's interior).
+        Subpath 3: doorway cutout at the base.
       */}
       <path
         fillRule="evenodd"
         fill={bodyColor}
         d="
-          M24 14 L46 54 L2 54 Z
-          M24 26 L36 47 L12 47 Z
-          M21 54 L27 54 L24 47 Z
+          M32 14 L62 76 L2 76 Z
+          M32 32 L40 52 L24 52 Z
+          M27 60 L37 60 L37 76 L27 76 Z
         "
       />
 
-      {/* Teal signal triangle (the beam) — separated from the body */}
-      <path d="M24 0 L17 12 L31 12 Z" fill={beamColor} />
+      {/* Teal signal triangle (the beam) — separated from the body by a small gap */}
+      <path d="M32 0 L46 11 L18 11 Z" fill={beamColor} />
 
       {/* Gold flame accent inside the beam */}
-      <path d="M24 3 L20.5 10.5 L27.5 10.5 Z" fill={accentColor} />
+      <path d="M32 3 L39 10 L25 10 Z" fill={accentColor} />
     </svg>
   );
 }
@@ -85,7 +86,7 @@ export function BeaconWordmark({
         be
       </span>
       <BeaconIcon
-        className="h-[1.4em] w-auto mx-[1px] translate-y-[-1px]"
+        className="h-[1.5em] w-auto mx-[2px] translate-y-[2px]"
         bodyColor={textColor}
         beamColor={beamColor}
         accentColor={accentColor}
@@ -110,7 +111,7 @@ export function BeaconStacked({
 }) {
   return (
     <div className={`flex flex-col items-center gap-3 ${className}`}>
-      <BeaconIcon className="w-20 h-20 text-beacon-navy" />
+      <BeaconIcon className="w-20 h-24 text-beacon-navy" />
       <BeaconWordmark className="text-[22px]" />
     </div>
   );

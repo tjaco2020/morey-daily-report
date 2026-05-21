@@ -7,7 +7,7 @@ export const metadata = {
 
 const ITEMS: { q: string; a: React.ReactNode }[] = [
   {
-    q: "The yellow bubble doesn't show up.",
+    q: "The beAcon bubble doesn't show up.",
     a: (
       <ul>
         <li>

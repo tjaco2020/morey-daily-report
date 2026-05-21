@@ -20,7 +20,7 @@ export default async function EmbedAdminPage() {
         </h1>
         <p className="text-sm text-morey-mid mt-1 mb-6">
           Paste this snippet into the footer of any internal Morey&apos;s site.
-          A yellow bubble appears in the bottom-right corner; staff can click
+          A small beAcon bubble appears in the bottom-right corner; staff can click
           it to log a report with their PIN, without leaving the page they&apos;re on.
         </p>
 

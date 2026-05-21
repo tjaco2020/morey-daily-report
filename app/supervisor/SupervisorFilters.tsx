@@ -2,6 +2,37 @@
 
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
+import { ChevronLeft, ChevronRight, CalendarDays } from "lucide-react";
+
+/**
+ * Returns YYYY-MM-DD for today in Morey's operating timezone (America/New_York).
+ * Mirrors lib/format.ts:todayLocal so the Today button always lands on the
+ * NJ "today", regardless of where the browser thinks it is.
+ */
+function todayNJ(): string {
+  const fmt = new Intl.DateTimeFormat("en-US", {
+    timeZone: "America/New_York",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  });
+  const parts: Record<string, string> = {};
+  for (const p of fmt.formatToParts(new Date())) {
+    if (p.type !== "literal") parts[p.type] = p.value;
+  }
+  return `${parts.year}-${parts.month}-${parts.day}`;
+}
+
+/** Add `days` to a YYYY-MM-DD date string and return YYYY-MM-DD. */
+function shiftDate(s: string, days: number): string {
+  const [y, m, d] = s.split("-").map(Number);
+  const dt = new Date(y, m - 1, d);
+  dt.setDate(dt.getDate() + days);
+  const yy = dt.getFullYear();
+  const mm = String(dt.getMonth() + 1).padStart(2, "0");
+  const dd = String(dt.getDate()).padStart(2, "0");
+  return `${yy}-${mm}-${dd}`;
+}
 
 type Option = { id: string; name: string };
 
@@ -75,12 +106,43 @@ export function SupervisorFilters({
       className="grid grid-cols-2 md:grid-cols-5 gap-2 items-end"
     >
       <Field label="Date">
-        <input
-          type="date"
-          value={state.date}
-          onChange={(e) => update("date", e.target.value)}
-          className="w-full px-2 py-1.5 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-morey-yellow/40 text-sm"
-        />
+        <div className="flex items-stretch gap-1">
+          <button
+            type="button"
+            onClick={() => update("date", shiftDate(state.date, -1))}
+            disabled={pending}
+            aria-label="Previous day"
+            className="px-1.5 py-1.5 rounded-lg border border-slate-200 bg-white text-morey-deep hover:bg-slate-50 disabled:opacity-60 transition"
+          >
+            <ChevronLeft className="w-3.5 h-3.5" />
+          </button>
+          <input
+            type="date"
+            value={state.date}
+            onChange={(e) => update("date", e.target.value)}
+            className="flex-1 min-w-0 px-2 py-1.5 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-beacon-teal/40 text-sm"
+          />
+          <button
+            type="button"
+            onClick={() => update("date", shiftDate(state.date, 1))}
+            disabled={pending}
+            aria-label="Next day"
+            className="px-1.5 py-1.5 rounded-lg border border-slate-200 bg-white text-morey-deep hover:bg-slate-50 disabled:opacity-60 transition"
+          >
+            <ChevronRight className="w-3.5 h-3.5" />
+          </button>
+          <button
+            type="button"
+            onClick={() => update("date", todayNJ())}
+            disabled={pending || state.date === todayNJ()}
+            aria-label="Today"
+            title="Jump to today"
+            className="px-2 py-1.5 rounded-lg border border-slate-200 bg-white text-morey-deep hover:bg-slate-50 disabled:opacity-60 transition inline-flex items-center gap-1 text-xs font-medium"
+          >
+            <CalendarDays className="w-3.5 h-3.5" />
+            Today
+          </button>
+        </div>
       </Field>
 
       <Field label="Department">

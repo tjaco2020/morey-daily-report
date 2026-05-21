@@ -99,7 +99,7 @@ export function EmbedClient() {
               /embed/widget
             </code>{" "}
             from the Daily Report app — a bare, transparent page with just
-            the yellow bubble.
+            the beAcon bubble.
           </li>
           <li>
             A user on the host site clicks the bubble → the iframe expands →

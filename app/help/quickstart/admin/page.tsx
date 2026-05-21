@@ -169,7 +169,7 @@ export default function AdminQuickstart() {
             </li>
             <li>
               <strong>Embed widget</strong> — copy a snippet that drops the
-              yellow bubble into other internal sites.
+              beAcon bubble into other internal sites.
             </li>
           </ul>
         </Section>

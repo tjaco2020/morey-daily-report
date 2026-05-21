@@ -38,9 +38,9 @@ export default function FrontlineQuickstart() {
           </p>
         </header>
 
-        <Section title="1. The yellow bubble" icon={MessageSquare}>
+        <Section title="1. The beAcon bubble" icon={MessageSquare}>
           <p>
-            Anywhere you see a <strong>yellow bubble</strong> in the bottom
+            Anywhere you see the <strong>beAcon bubble</strong> in the bottom
             right corner of the screen, you can click it to log a report.
             That&apos;s your entry point.
           </p>
@@ -63,7 +63,7 @@ export default function FrontlineQuickstart() {
 
         <Section title="3. Logging a report" icon={FileText}>
           <ol>
-            <li>Click the yellow bubble.</li>
+            <li>Click the beAcon bubble.</li>
             <li>
               Type what happened. Be specific. The tool has an{" "}
               <strong>AI Proofread</strong> button — click it to clean up the
@@ -105,7 +105,7 @@ export default function FrontlineQuickstart() {
               digits. Don&apos;t share it.
             </li>
             <li>
-              On any device with the yellow bubble installed, click the
+              On any device with the beAcon bubble installed, click the
               widget and look for <em>+ Log as someone else (PIN override)</em>.
             </li>
             <li>

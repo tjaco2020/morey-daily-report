@@ -157,7 +157,7 @@ export default async function DashboardPage() {
               <EmptyState
                 icon={FilePlus2}
                 title="No reports yet today"
-                description="Tap the red bubble in the bottom right corner to log your first."
+                description="Tap the beAcon bubble in the bottom right corner to log your first."
               />
             )}
           </section>
