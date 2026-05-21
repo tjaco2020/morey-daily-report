@@ -10,6 +10,7 @@ import {
 } from "@/lib/format";
 import { Clock, Pencil, FilePlus2 } from "lucide-react";
 import { EmptyState } from "@/components/EmptyState";
+import { DeleteReportButton } from "@/components/DeleteReportButton";
 
 export const dynamic = "force-dynamic";
 
@@ -80,15 +81,24 @@ export default async function TodayReportsPage() {
                     {r.case_number}
                   </p>
                 </div>
-                {r.status === "pending" && (
-                  <Link
-                    href={`/reports/${r.id}`}
-                    className="shrink-0 inline-flex items-center gap-1 text-sm text-morey-ocean hover:text-morey-deep transition"
-                  >
-                    <Pencil className="w-3.5 h-3.5" />
-                    Edit
-                  </Link>
-                )}
+                <div className="shrink-0 flex items-center gap-2">
+                  {r.status === "pending" && (
+                    <Link
+                      href={`/reports/${r.id}`}
+                      className="inline-flex items-center gap-1 text-sm text-morey-ocean hover:text-morey-deep transition"
+                    >
+                      <Pencil className="w-3.5 h-3.5" />
+                      Edit
+                    </Link>
+                  )}
+                  {(r.status === "pending" || r.status === "submitted") && (
+                    <DeleteReportButton
+                      reportId={r.id}
+                      caseNumber={r.case_number}
+                      variant="icon"
+                    />
+                  )}
+                </div>
               </li>
             ))}
           </ul>

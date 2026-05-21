@@ -11,6 +11,7 @@ import Link from "next/link";
 import { SupervisorFilters } from "./SupervisorFilters";
 import { Download, Search, FileText, ChevronRight } from "lucide-react";
 import { EmptyState } from "@/components/EmptyState";
+import { DeleteReportButton } from "@/components/DeleteReportButton";
 
 export const dynamic = "force-dynamic";
 
@@ -239,13 +240,20 @@ export default async function SupervisorDashboard({
                         {r.case_number}
                       </td>
                       <td className="px-4 py-3 whitespace-nowrap">
-                        <Link
-                          href={`/reports/${r.id}`}
-                          className="inline-flex items-center gap-1 text-morey-ocean hover:text-morey-deep text-sm transition"
-                        >
-                          <FileText className="w-3.5 h-3.5" />
-                          Open
-                        </Link>
+                        <div className="flex items-center gap-3">
+                          <Link
+                            href={`/reports/${r.id}`}
+                            className="inline-flex items-center gap-1 text-morey-ocean hover:text-morey-deep text-sm transition"
+                          >
+                            <FileText className="w-3.5 h-3.5" />
+                            Open
+                          </Link>
+                          <DeleteReportButton
+                            reportId={r.id}
+                            caseNumber={r.case_number}
+                            variant="icon"
+                          />
+                        </div>
                       </td>
                     </tr>
                   ))}

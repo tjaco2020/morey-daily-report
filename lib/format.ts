@@ -1,13 +1,17 @@
 // Date/time formatting helpers. All operate in the user's local time zone
 // (America/New_York for Morey's staff).
 
-/** Today as YYYY-MM-DD in the user's local time. */
+/**
+ * Today as YYYY-MM-DD in Morey's operating timezone (America/New_York).
+ * Always returns the NJ date regardless of where the code runs (server or
+ * client), so the business day is consistent across timezones.
+ */
 export function todayLocal(): string {
-  const d = new Date();
-  const y = d.getFullYear();
-  const m = String(d.getMonth() + 1).padStart(2, "0");
-  const day = String(d.getDate()).padStart(2, "0");
-  return `${y}-${m}-${day}`;
+  // "en-CA" formats as YYYY-MM-DD; combined with the NY timezone gives the
+  // current calendar date in Wildwood.
+  return new Date().toLocaleDateString("en-CA", {
+    timeZone: "America/New_York",
+  });
 }
 
 /** Formats an ISO timestamp as "h:mm a" in local time. */
