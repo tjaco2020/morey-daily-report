@@ -1,28 +1,28 @@
 import { createServerSupabase } from "@/lib/supabase/server";
 import { requireRole } from "@/lib/roles";
 import Link from "next/link";
-import { TerminalsClient } from "./TerminalsClient";
+import { OutletsClient } from "./OutletsClient";
 
 export const dynamic = "force-dynamic";
 
-export default async function TerminalsAdminPage() {
+export default async function OutletsAdminPage() {
   await requireRole("manager");
   const supabase = createServerSupabase();
 
-  const [{ data: terminals }, { data: locations }, { data: outlets }] =
+  const [{ data: outlets }, { data: departments }, { data: locations }] =
     await Promise.all([
       supabase
-        .from("terminals")
-        .select("id, name, active, location_id, outlet_id")
-        .order("name"),
+        .from("outlets")
+        .select("id, name, department_id, location_id, display_order, active")
+        .order("display_order"),
       supabase
-        .from("locations")
-        .select("id, name, display_order, active")
+        .from("departments")
+        .select("id, name")
         .eq("active", true)
         .order("display_order"),
       supabase
-        .from("outlets")
-        .select("id, name, department_id, active")
+        .from("locations")
+        .select("id, name")
         .eq("active", true)
         .order("display_order"),
     ]);
@@ -37,35 +37,36 @@ export default async function TerminalsAdminPage() {
           ← Admin
         </Link>
         <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight text-morey-deep mt-2">
-          Terminals
+          Outlets
         </h1>
         <p className="text-sm text-morey-mid mt-1 mb-6">
-          POS terminals. Assign each to a{" "}
+          Specific business units (a restaurant, a store, a ticket counter).
+          Each belongs to a{" "}
+          <Link href="/admin/departments" className="text-morey-ocean hover:underline">
+            department
+          </Link>{" "}
+          and optionally a{" "}
           <Link href="/admin/locations" className="text-morey-ocean hover:underline">
             location
-          </Link>{" "}
-          (pier) and an{" "}
-          <Link href="/admin/outlets" className="text-morey-ocean hover:underline">
-            outlet
-          </Link>{" "}
-          (business unit). Reports logged at a terminal inherit its outlet
-          automatically.
+          </Link>
+          .
         </p>
-        <TerminalsClient
-          initial={(terminals ?? []).map((t) => ({
-            id: t.id,
-            name: t.name,
-            active: t.active,
-            location_id: t.location_id ?? null,
-            outlet_id: t.outlet_id ?? null,
+        <OutletsClient
+          initial={(outlets ?? []).map((o) => ({
+            id: o.id,
+            name: o.name,
+            department_id: o.department_id,
+            location_id: o.location_id ?? null,
+            display_order: o.display_order,
+            active: o.active,
+          }))}
+          departments={(departments ?? []).map((d) => ({
+            id: d.id,
+            name: d.name,
           }))}
           locations={(locations ?? []).map((l) => ({
             id: l.id,
             name: l.name,
-          }))}
-          outlets={(outlets ?? []).map((o) => ({
-            id: o.id,
-            name: o.name,
           }))}
         />
       </div>

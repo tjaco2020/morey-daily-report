@@ -30,6 +30,8 @@ export async function GET(request: NextRequest) {
   const categoryId = sp.get("category");
   const terminalId = sp.get("terminal");
   const locationId = sp.get("location");
+  const departmentId = sp.get("department");
+  const outletId = sp.get("outlet");
   const userId = sp.get("user");
   const keyword = (sp.get("q") ?? "").trim();
 
@@ -47,6 +49,19 @@ export async function GET(request: NextRequest) {
   if (categoryId) q = q.eq("category_id", categoryId);
   if (terminalId) q = q.eq("terminal_id", terminalId);
   if (locationId) q = q.eq("terminal_location_id", locationId);
+  if (outletId) q = q.eq("outlet_id", outletId);
+  if (departmentId) {
+    const { data: deptOutlets } = await supabase
+      .from("outlets")
+      .select("id")
+      .eq("department_id", departmentId);
+    const ids = (deptOutlets ?? []).map((d) => d.id);
+    if (ids.length > 0) {
+      q = q.in("outlet_id", ids);
+    } else {
+      q = q.eq("outlet_id", "00000000-0000-0000-0000-000000000000");
+    }
+  }
   if (userId) q = q.eq("user_id", userId);
   if (keyword) {
     const safe = keyword.replace(/[%_]/g, "");

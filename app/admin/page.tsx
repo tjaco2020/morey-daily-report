@@ -31,6 +31,18 @@ export default async function AdminHome() {
             ready
           />
           <Tile
+            title="Departments"
+            desc="Functional groupings (Admissions, F&B, Retail, Operations…)."
+            href="/admin/departments"
+            ready
+          />
+          <Tile
+            title="Outlets"
+            desc="Specific business units — restaurants, stores, ticket counters."
+            href="/admin/outlets"
+            ready
+          />
+          <Tile
             title="Locations"
             desc="Pier-level groupings (Mariner's, Surfside, Adventure, Retail…)."
             href="/admin/locations"

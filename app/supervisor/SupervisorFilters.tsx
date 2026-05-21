@@ -12,12 +12,16 @@ type Props = {
     category: string;
     terminal: string;
     location: string;
+    department: string;
+    outlet: string;
     user: string;
     q: string;
   };
   categories: Option[];
   terminals: Option[];
   locations: Option[];
+  departments: Option[];
+  outlets: Option[];
   users: Option[];
 };
 
@@ -28,6 +32,8 @@ export function SupervisorFilters({
   categories,
   terminals,
   locations,
+  departments,
+  outlets,
   users,
 }: Props) {
   const router = useRouter();
@@ -41,6 +47,8 @@ export function SupervisorFilters({
     if (next.category) params.set("category", next.category);
     if (next.terminal) params.set("terminal", next.terminal);
     if (next.location) params.set("location", next.location);
+    if (next.department) params.set("department", next.department);
+    if (next.outlet) params.set("outlet", next.outlet);
     if (next.user) params.set("user", next.user);
     if (next.q) params.set("q", next.q);
     startTransition(() => {
@@ -64,7 +72,7 @@ export function SupervisorFilters({
         e.preventDefault();
         apply();
       }}
-      className="grid grid-cols-1 md:grid-cols-7 gap-2 items-end"
+      className="grid grid-cols-2 md:grid-cols-5 gap-2 items-end"
     >
       <Field label="Date">
         <input
@@ -73,6 +81,36 @@ export function SupervisorFilters({
           onChange={(e) => update("date", e.target.value)}
           className="w-full px-2 py-1.5 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-morey-yellow/40 text-sm"
         />
+      </Field>
+
+      <Field label="Department">
+        <select
+          value={state.department}
+          onChange={(e) => update("department", e.target.value)}
+          className="w-full px-2 py-1.5 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-morey-yellow/40 text-sm bg-white"
+        >
+          <option value="">Any</option>
+          {departments.map((d) => (
+            <option key={d.id} value={d.id}>
+              {d.name}
+            </option>
+          ))}
+        </select>
+      </Field>
+
+      <Field label="Outlet">
+        <select
+          value={state.outlet}
+          onChange={(e) => update("outlet", e.target.value)}
+          className="w-full px-2 py-1.5 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-morey-yellow/40 text-sm bg-white"
+        >
+          <option value="">Any</option>
+          {outlets.map((o) => (
+            <option key={o.id} value={o.id}>
+              {o.name}
+            </option>
+          ))}
+        </select>
       </Field>
 
       <Field label="Location">

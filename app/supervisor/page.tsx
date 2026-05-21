@@ -31,6 +31,8 @@ export default async function SupervisorDashboard({
   const categoryId = searchParams.category || "";
   const terminalId = searchParams.terminal || "";
   const locationId = searchParams.location || "";
+  const departmentId = searchParams.department || "";
+  const outletId = searchParams.outlet || "";
   const userId = searchParams.user || "";
   const keyword = (searchParams.q || "").trim();
 
@@ -38,6 +40,8 @@ export default async function SupervisorDashboard({
     { data: categories },
     { data: terminals },
     { data: locations },
+    { data: departments },
+    { data: outlets },
     { data: users },
   ] = await Promise.all([
     supabase
@@ -53,6 +57,16 @@ export default async function SupervisorDashboard({
     supabase
       .from("locations")
       .select("id, name, display_order")
+      .eq("active", true)
+      .order("display_order"),
+    supabase
+      .from("departments")
+      .select("id, name, display_order")
+      .eq("active", true)
+      .order("display_order"),
+    supabase
+      .from("outlets")
+      .select("id, name, department_id, display_order")
       .eq("active", true)
       .order("display_order"),
     supabase
@@ -77,6 +91,19 @@ export default async function SupervisorDashboard({
   if (categoryId) q = q.eq("category_id", categoryId);
   if (terminalId) q = q.eq("terminal_id", terminalId);
   if (locationId) q = q.eq("terminal_location_id", locationId);
+  if (outletId) q = q.eq("outlet_id", outletId);
+  if (departmentId) {
+    // Filter by all outlets in the department (department -> outlets -> reports)
+    const inDept = (outlets ?? [])
+      .filter((o) => o.department_id === departmentId)
+      .map((o) => o.id);
+    if (inDept.length > 0) {
+      q = q.in("outlet_id", inDept);
+    } else {
+      // No outlets in this department → no matches
+      q = q.eq("outlet_id", "00000000-0000-0000-0000-000000000000");
+    }
+  }
   if (userId) q = q.eq("user_id", userId);
   if (keyword) {
     const safe = keyword.replace(/[%_]/g, "");
@@ -103,6 +130,8 @@ export default async function SupervisorDashboard({
   if (categoryId) exportParams.set("category", categoryId);
   if (terminalId) exportParams.set("terminal", terminalId);
   if (locationId) exportParams.set("location", locationId);
+  if (departmentId) exportParams.set("department", departmentId);
+  if (outletId) exportParams.set("outlet", outletId);
   if (userId) exportParams.set("user", userId);
   if (keyword) exportParams.set("q", keyword);
   const exportHref = `/api/supervisor/export?${exportParams.toString()}`;
@@ -155,6 +184,8 @@ export default async function SupervisorDashboard({
               category: categoryId,
               terminal: terminalId,
               location: locationId,
+              department: departmentId,
+              outlet: outletId,
               user: userId,
               q: keyword,
             }}
@@ -170,6 +201,20 @@ export default async function SupervisorDashboard({
               id: l.id,
               name: l.name,
             }))}
+            departments={(departments ?? []).map((d) => ({
+              id: d.id,
+              name: d.name,
+            }))}
+            outlets={(outlets ?? []).map((o) => ({
+              id: o.id,
+              // If a department filter is active, narrow to that dept's outlets
+              name: o.name,
+            })).filter((o) => {
+              if (!departmentId) return true;
+              return (outlets ?? []).some(
+                (x) => x.id === o.id && x.department_id === departmentId,
+              );
+            })}
             users={(users ?? []).map((u) => ({
               id: u.id,
               name: u.full_name ?? u.email,

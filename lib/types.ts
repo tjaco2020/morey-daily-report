@@ -40,6 +40,23 @@ export interface Location {
   active: boolean;
 }
 
+export interface Department {
+  id: string;
+  name: string;
+  description: string | null;
+  display_order: number;
+  active: boolean;
+}
+
+export interface Outlet {
+  id: string;
+  name: string;
+  department_id: string;
+  location_id: string | null;
+  display_order: number;
+  active: boolean;
+}
+
 export interface ShareGroup {
   id: string;
   name: string;
