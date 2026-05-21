@@ -5,6 +5,14 @@ const nextConfig = {
   // that use Node-only APIs (fs, native bindings, dynamic requires).
   experimental: {
     serverComponentsExternalPackages: ["@react-pdf/renderer", "snowflake-sdk"],
+    // Force-include these in every serverless function bundle so Vercel's
+    // file tracer doesn't accidentally strip them out (snowflake-sdk uses
+    // dynamic requires the tracer can't follow on its own).
+    outputFileTracingIncludes: {
+      "/api/**/*": [
+        "node_modules/snowflake-sdk/**/*",
+      ],
+    },
   },
   webpack: (config, { isServer }) => {
     if (isServer) {

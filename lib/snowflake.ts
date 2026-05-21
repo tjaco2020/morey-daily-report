@@ -5,72 +5,33 @@
 // data so the rest of the pipeline (UI / PDF / email) remains testable.
 
 import { createServerSupabase } from "@/lib/supabase/server";
-import { createRequire } from "node:module";
-import path from "node:path";
 
 /**
- * Load snowflake-sdk lazily, trying multiple resolution strategies. The
- * goal is to support both bundled-server output (Next.js compiled file in
- * .next/server/...) and ordinary Node ESM contexts.
+ * Load snowflake-sdk lazily via native dynamic import.
  *
- * Strategy order:
- *   1. createRequire anchored to <cwd>/package.json — always finds the
- *      project root's node_modules.
- *   2. createRequire(import.meta.url) — fallback that works in plain ESM.
- *   3. eval("require") — last-resort access to a CommonJS require in
- *      bundled contexts.
- *
- * The module name is built at runtime so webpack can't statically follow
- * it during bundling.
+ * Why this shape: Vercel's file tracer (@vercel/nft) needs to see the
+ * import statically to include the package in the serverless function
+ * bundle. A plain `await import("snowflake-sdk")` is visible to the
+ * tracer. Webpack still leaves it external thanks to the
+ * `serverComponentsExternalPackages` config in next.config.mjs.
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 let snowflakeSdkCache: any = null;
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-function loadSnowflakeSdk(): any {
+async function loadSnowflakeSdk(): Promise<any> {
   if (snowflakeSdkCache) return snowflakeSdkCache;
-  const moduleName = ["snowflake", "sdk"].join("-");
-  const errors: string[] = [];
-
-  // 1. Anchor to the project root via cwd/package.json
   try {
-    const req = createRequire(path.join(process.cwd(), "package.json"));
-    snowflakeSdkCache = req(moduleName);
+    const mod = await import("snowflake-sdk");
+    // The package ships as CJS — Next/ESM may wrap it in a default key.
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    snowflakeSdkCache = (mod as any).default ?? mod;
     return snowflakeSdkCache;
   } catch (err) {
-    errors.push(
-      `cwd-createRequire: ${err instanceof Error ? err.message : String(err)}`,
+    throw new Error(
+      "Could not load snowflake-sdk. Underlying: " +
+        (err instanceof Error ? err.message : String(err)),
     );
   }
-
-  // 2. createRequire from the current module's URL
-  try {
-    const req = createRequire(import.meta.url);
-    snowflakeSdkCache = req(moduleName);
-    return snowflakeSdkCache;
-  } catch (err) {
-    errors.push(
-      `meta-createRequire: ${err instanceof Error ? err.message : String(err)}`,
-    );
-  }
-
-  // 3. eval-based global require
-  try {
-    // eslint-disable-next-line no-eval
-    const evaluatedRequire = eval("require") as NodeRequire;
-    snowflakeSdkCache = evaluatedRequire(moduleName);
-    return snowflakeSdkCache;
-  } catch (err) {
-    errors.push(
-      `eval-require: ${err instanceof Error ? err.message : String(err)}`,
-    );
-  }
-
-  throw new Error(
-    "Could not load snowflake-sdk despite trying multiple strategies. " +
-      "Run `npm install snowflake-sdk` and restart the dev server. " +
-      "Diagnostics: " +
-      errors.join(" | "),
-  );
 }
 
 export type CategoryCount = {
@@ -223,7 +184,7 @@ async function fetchFromSnowflake(date: string): Promise<DailyMetrics> {
   let conn: any = null;
 
   try {
-    const sdk = loadSnowflakeSdk();
+    const sdk = await loadSnowflakeSdk();
 
     conn = sdk.createConnection({
       account: process.env.SNOWFLAKE_ACCOUNT!,
