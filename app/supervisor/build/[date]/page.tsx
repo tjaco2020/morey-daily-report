@@ -90,10 +90,10 @@ export default async function BuildPage({
           </p>
         )}
 
-        {dailyReport && (
+        {drId && (
           <BuilderClient
             dailyReport={{
-              id: drId!,
+              id: drId,
               report_date: date,
               status:
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
