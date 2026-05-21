@@ -43,7 +43,9 @@ export async function GET(
   );
 
   const filename = `morey-daily-${params.date}.pdf`;
-  return new NextResponse(buffer, {
+  // Wrap Buffer in Uint8Array so it satisfies the Web BodyInit type that
+  // NextResponse expects in stricter TypeScript builds.
+  return new NextResponse(new Uint8Array(buffer), {
     headers: {
       "Content-Type": "application/pdf",
       "Content-Disposition": `inline; filename="${filename}"`,
