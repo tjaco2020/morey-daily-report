@@ -14,6 +14,7 @@ import {
   Sunset,
   AlertTriangle,
   ChevronRight,
+  Eye,
 } from "lucide-react";
 
 type OpenReport = {
@@ -24,6 +25,11 @@ type OpenReport = {
   submitted_at: string | null;
   created_at: string;
   category_name: string | null;
+};
+
+type AwaitingReport = OpenReport & {
+  author_name: string;
+  terminal_name: string | null;
 };
 
 type Props = {
@@ -46,6 +52,8 @@ export function EndDayDialog({ open, onClose, onEnded }: Props) {
 
   const [loading, setLoading] = useState(true);
   const [openReports, setOpenReports] = useState<OpenReport[]>([]);
+  const [awaitingReview, setAwaitingReview] = useState<AwaitingReport[]>([]);
+  const [isReviewer, setIsReviewer] = useState(false);
   const [recap, setRecap] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -64,9 +72,21 @@ export function EndDayDialog({ open, onClose, onEnded }: Props) {
         } = await supabase.auth.getUser();
         if (!user || cancelled) return;
 
-        // Pull today's reports — pending (draft) + submitted (review needed)
         const today = todayLocal();
-        const { data } = await supabase
+
+        // Find out if this user reviews other people's reports.
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("role")
+          .eq("id", user.id)
+          .maybeSingle();
+        const reviewer =
+          profile?.role === "supervisor" || profile?.role === "manager";
+        if (cancelled) return;
+        setIsReviewer(reviewer);
+
+        // 1. The user's own open reports — drafts + their own submitted reports.
+        const { data: mine } = await supabase
           .from("reports")
           .select(
             `id, case_number, status, text, submitted_at, created_at,
@@ -78,7 +98,7 @@ export function EndDayDialog({ open, onClose, onEnded }: Props) {
           .order("created_at", { ascending: false });
         if (cancelled) return;
         setOpenReports(
-          (data ?? []).map((r) => ({
+          (mine ?? []).map((r) => ({
             id: r.id,
             case_number: r.case_number,
             status: r.status,
@@ -89,6 +109,43 @@ export function EndDayDialog({ open, onClose, onEnded }: Props) {
             category_name: (r as any).categories?.name ?? null,
           })),
         );
+
+        // 2. If they're a reviewer, also pull OTHER people's submitted
+        // reports for today (i.e. reports still on the supervisor's plate).
+        if (reviewer) {
+          const { data: others } = await supabase
+            .from("reports")
+            .select(
+              `id, case_number, status, text, submitted_at, created_at,
+               categories(name), terminals(name),
+               profiles!reports_user_id_fkey(full_name, email)`,
+            )
+            .eq("report_date", today)
+            .eq("status", "submitted")
+            .neq("user_id", user.id)
+            .order("submitted_at", { ascending: false });
+          if (cancelled) return;
+          setAwaitingReview(
+            (others ?? []).map((r) => ({
+              id: r.id,
+              case_number: r.case_number,
+              status: r.status,
+              text: r.text,
+              submitted_at: r.submitted_at,
+              created_at: r.created_at,
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              category_name: (r as any).categories?.name ?? null,
+              author_name:
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                (r as any).profiles?.full_name ??
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                (r as any).profiles?.email ??
+                "—",
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              terminal_name: (r as any).terminals?.name ?? null,
+            })),
+          );
+        }
 
         // Pre-fill recap textarea if a recap already exists today
         const { data: existing } = await supabase
@@ -186,22 +243,25 @@ export function EndDayDialog({ open, onClose, onEnded }: Props) {
           ) : (
             <>
               {/* Open reports summary */}
-              <div className="flex items-center gap-2 mb-3">
+              <div className="flex items-center flex-wrap gap-x-2 gap-y-1 mb-3">
                 <span className="text-[10px] uppercase tracking-wider font-semibold text-beacon-mid">
                   Today
                 </span>
                 <span className="text-xs text-beacon-mid">
-                  · {openReports.length}{" "}
-                  open{" "}
-                  report{openReports.length === 1 ? "" : "s"}
+                  · {openReports.length} of yours open
                 </span>
+                {isReviewer && awaitingReview.length > 0 && (
+                  <span className="text-xs text-beacon-tealDark">
+                    · {awaitingReview.length} awaiting your review
+                  </span>
+                )}
               </div>
 
-              {openReports.length === 0 && (
+              {openReports.length === 0 && awaitingReview.length === 0 && (
                 <div className="flex items-center gap-2 p-3 rounded-md bg-beacon-tealSoft/60 border border-beacon-tealSoft text-sm text-beacon-tealDark mb-4">
                   <CheckCircle2 className="w-4 h-4 shrink-0" />
                   <span>
-                    All clear — no drafts or pending reports for today. Nice work.
+                    All clear — nothing on your plate for today. Nice work.
                   </span>
                 </div>
               )}
@@ -245,6 +305,30 @@ export function EndDayDialog({ open, onClose, onEnded }: Props) {
                         report={r}
                         onClose={onClose}
                         tone="submitted"
+                      />
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+              {/* Reports awaiting THIS user's review (supervisor / manager only) */}
+              {isReviewer && awaitingReview.length > 0 && (
+                <div className="mb-4">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Eye className="w-3.5 h-3.5 text-beacon-tealDark" />
+                    <span className="text-xs font-semibold text-beacon-navy uppercase tracking-wider">
+                      Awaiting your review ({awaitingReview.length})
+                    </span>
+                    <span className="text-[10px] text-beacon-tealDark bg-beacon-tealSoft border border-beacon-teal/30 px-2 py-0.5 rounded">
+                      Roll into the Daily Report
+                    </span>
+                  </div>
+                  <ul className="space-y-1.5">
+                    {awaitingReview.map((r) => (
+                      <AwaitingRow
+                        key={r.id}
+                        report={r}
+                        onClose={onClose}
                       />
                     ))}
                   </ul>
@@ -323,6 +407,52 @@ export function EndDayDialog({ open, onClose, onEnded }: Props) {
         </div>
       </div>
     </div>
+  );
+}
+
+function AwaitingRow({
+  report,
+  onClose,
+}: {
+  report: AwaitingReport;
+  onClose: () => void;
+}) {
+  return (
+    <li className="flex items-start gap-2 px-3 py-2 rounded-md border border-beacon-line border-l-4 border-l-beacon-teal bg-beacon-tealSoft/30 hover:bg-white transition">
+      <div className="flex-1 min-w-0">
+        <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5 mb-0.5">
+          <span className="text-xs font-semibold text-beacon-navy">
+            {report.author_name}
+          </span>
+          {report.category_name && (
+            <span className="text-[10px] text-beacon-tealDark bg-beacon-tealSoft px-1.5 py-0.5 rounded">
+              {report.category_name}
+            </span>
+          )}
+          {report.terminal_name && (
+            <span className="text-[10px] text-beacon-mid">
+              · {report.terminal_name}
+            </span>
+          )}
+          <span className="text-[10px] text-beacon-mid tabular-nums">
+            · {formatTime(report.submitted_at ?? report.created_at)}
+          </span>
+        </div>
+        <p className="text-xs text-beacon-navy/80 line-clamp-2 break-words">
+          {report.text || (
+            <span className="italic text-beacon-mid">No text yet.</span>
+          )}
+        </p>
+      </div>
+      <Link
+        href={`/reports/${report.id}`}
+        onClick={onClose}
+        className="shrink-0 inline-flex items-center gap-0.5 text-xs font-medium text-beacon-tealDark hover:text-beacon-navy transition"
+      >
+        Review
+        <ChevronRight className="w-3 h-3" />
+      </Link>
+    </li>
   );
 }
 
