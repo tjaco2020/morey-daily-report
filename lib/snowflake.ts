@@ -213,33 +213,62 @@ async function fetchFromSnowflake(date: string): Promise<DailyMetrics> {
         });
       });
 
-    // Transactions: orders closed on this date (NY time).
-    const TX_SQL = `
-      SELECT COUNT(*) AS "total_transactions"
-      FROM ORION."order"."order"
-      WHERE "state" = 'Closed'
-        AND DATE(CONVERT_TIMEZONE('America/New_York', "created_date_time_offset")) = TO_DATE(?)
+    // Web terminals are enumerated in sales_point_profile with a real
+    // terminal_id; POS profiles have an EMPTY-STRING terminal_id, so a
+    // positive "channel = POS" join would drop them. We build a CTE of
+    // web terminals and exclude orders that match.
+    const WEB_TERMINAL_CTE = `
+      WITH web_terminals AS (
+        SELECT DISTINCT spp."terminal_id"
+        FROM ORION."company"."sales_point_profile" spp
+        JOIN ORION."company"."sales_channel_profile" scp
+          ON spp."sales_channel_profile_id" = scp."sales_channel_profile_id"
+        WHERE scp."sales_channel_type" = 'Web'
+          AND spp."is_deleted" = FALSE
+          AND spp."terminal_id" <> ''
+      )
     `;
 
-    // Tickets by category. Each opi row IS one ticket / redemption.
+    // Transactions: orders closed on this date (NY time), excluding web.
+    const TX_SQL = `
+      ${WEB_TERMINAL_CTE}
+      SELECT COUNT(*) AS "total_transactions"
+      FROM ORION."order"."order" o
+      WHERE o."state" = 'Closed'
+        AND DATE(CONVERT_TIMEZONE('America/New_York', o."created_date_time_offset")) = TO_DATE(?)
+        AND (
+          o."terminal_id" IS NULL
+          OR o."terminal_id" NOT IN (SELECT "terminal_id" FROM web_terminals)
+        )
+    `;
+
+    // Tickets by category, excluding web sales.
     //
-    // Join chain (assuming the table-named-id convention for the PK):
-    //   opi.order_product_id  =  op.order_product_id     (PK of op)
-    //   op.product_id         =  pt.product_id
+    // Join chain:
+    //   opi.order_product_id  → op.order_product_id          (PK of op)
+    //   op.order_id           → o.order_id                   (gives us terminal_id)
+    //   op.product_id         → pt.product_id                (for category)
     //
     // LEFT JOIN to product_tag so uncategorized tickets are still counted.
     const TICKETS_SQL = `
+      ${WEB_TERMINAL_CTE}
       SELECT
         COALESCE(pt."value", 'Uncategorized') AS "category",
         COUNT(*) AS "count"
       FROM ORION."order"."order_product_instance" opi
       JOIN ORION."order"."order_product" op
         ON opi."order_product_id" = op."order_product_id"
+      JOIN ORION."order"."order" o
+        ON op."order_id" = o."order_id"
       LEFT JOIN ORION."product"."product_tag" pt
         ON op."product_id" = pt."product_id"
         AND pt."category" = 'RptCategory1'
       WHERE opi."refund_id" IS NULL
         AND DATE(CONVERT_TIMEZONE('America/New_York', opi."created_date_time_offset")) = TO_DATE(?)
+        AND (
+          o."terminal_id" IS NULL
+          OR o."terminal_id" NOT IN (SELECT "terminal_id" FROM web_terminals)
+        )
       GROUP BY COALESCE(pt."value", 'Uncategorized')
       ORDER BY "count" DESC
     `;
